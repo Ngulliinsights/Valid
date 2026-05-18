@@ -1,87 +1,58 @@
-/* ─────────────────────────────────────────────
-   FONT IMPORTS
-   Cormorant Garamond — editorial serif for
-   scenario copy and display headings.
-   DM Sans — clean sans for labels and UI chrome.
-   Both loaded here so every layer below can rely on them.
-───────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────
    DESIGN TOKENS
-   All values in HSL channel notation for
-   Tailwind's hsl() composition.
 ───────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Surface */
     --background:         30 14%  9%;
     --foreground:         40 28% 91%;
-
-    /* Card / Popover share the base surface */
     --card:               30 14%  9%;
     --card-foreground:    40 28% 91%;
     --popover:            30 14%  9%;
     --popover-foreground: 40 28% 91%;
-
-    /* Brand */
     --primary:            168 28% 33%;
     --primary-foreground:  30 14%  9%;
-
-    /* Raised surface — one step lighter than bg */
     --secondary:          30 14% 15%;
     --secondary-foreground: 40 28% 91%;
-
-    /* Suppressed / disabled surface */
     --muted:              30  8% 20%;
     --muted-foreground:   36  8% 57%;
-
-    /* Accent mirrors primary for now; override if needed */
     --accent:             168 28% 33%;
     --accent-foreground:   30 14%  9%;
-
-    /* Danger */
     --destructive:           0 50% 54%;
     --destructive-foreground: 40 28% 91%;
-
-    /* Chrome */
     --border: 36  8% 57%;
     --input:  36  8% 57%;
-    --ring:  168 28% 33%;
-
-    /* Geometry */
+    /* Focus ring → Ember */
+    --ring:  37 65% 47%;
     --radius: 0px;
 
-    /* Palette aliases (used in pattern helpers below) */
+    /* Palette RGB aliases */
     --parchment-rgb: 242, 237, 223;
     --teal-rgb:       61, 107, 101;
+    --ember-rgb:     196, 136,  42;
 
-    /* Named hex tokens — used by JS components like CustomCursor */
+    /* Named hex tokens for JS consumption */
     --parchment: #F2EDDF;
     --tide:      #3D6B65;
     --ember:     #C4882A;
     --ground:    #1A1814;
     --drift:     #9A9488;
 
-    /* Logo accent dots
-       Accessible in Tailwind as: text-mark-top, bg-mark-mid, etc.
-       Defined as hex here; mapped to Tailwind config via CSS vars. */
+    /* Logo dot tokens */
     --mark-top: #E8E0D0;
     --mark-mid: #C05A2E;
     --mark-bot: #7A9AAD;
 
-    /* Timing — single source of truth for all transitions */
+    /* Motion timing */
     --duration-fast:   120ms;
     --duration-medium: 240ms;
     --duration-slow:   400ms;
     --ease-standard:   cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* ── Reset ───────────────────────────────── */
   *,
   *::before,
   *::after {
@@ -89,11 +60,9 @@
     box-sizing: border-box;
   }
 
-  /* ── Document ────────────────────────────── */
   html {
     scroll-behavior: smooth;
     scrollbar-gutter: stable;
-    /* Prevent iOS font-size bump on orientation change */
     -webkit-text-size-adjust: 100%;
   }
 
@@ -102,7 +71,6 @@
     font-family: 'DM Sans', Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Warm vignette — deepens the header zone */
     background-image: radial-gradient(
       ellipse 120% 80% at 50% 0%,
       hsl(30 20% 12% / 0.6) 0%,
@@ -110,43 +78,62 @@
     );
   }
 
-  /* ── Selection ───────────────────────────── */
   ::selection {
-    background-color: hsl(var(--primary) / 0.35);
+    background-color: rgba(196, 136, 42, 0.3);
     color: hsl(var(--foreground));
   }
 
-  /* ── Scrollbar (Webkit) ──────────────────── */
-  ::-webkit-scrollbar        { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track  { background: hsl(var(--background)); }
+  /* ── Scrollbar ─────────────────────────────── */
+  ::-webkit-scrollbar        { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track  { background: transparent; }
   ::-webkit-scrollbar-thumb  {
-    background: hsl(var(--muted-foreground) / 0.4);
-    border-radius: 3px;
+    background: rgba(154, 148, 136, 0.25);
+    border-radius: 2px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--primary) / 0.7);
+    background: rgba(196, 136, 42, 0.45);
   }
 
-  /* ── Focus ───────────────────────────────── */
+  /* ── Focus ──────────────────────────────────── */
   textarea:focus,
   input:focus,
   select:focus {
     outline: none;
   }
 
-  button:focus-visible {
+  /* Ember focus ring — brand-aligned */
+  button:focus-visible,
+  a:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.8);
+    box-shadow:
+      0 0 0 2px #1A1814,
+      0 0 0 4px rgba(196, 136, 42, 0.65);
   }
 
-  /* ── Reduced motion ──────────────────────── */
+  /* Textarea focus — hairline ember top bar only */
+  textarea:focus-visible {
+    outline: none;
+    box-shadow: inset 0 2px 0 0 rgba(196, 136, 42, 0.4);
+  }
+
+  /* ── Placeholder font override ──────────────── */
+  /* Textareas in Cormorant italic context must not
+     inherit the serif/italic for placeholder text */
+  .font-cormorant::placeholder,
+  textarea.font-cormorant::placeholder {
+    font-family: 'DM Sans', Arial, sans-serif;
+    font-style:  normal;
+    font-weight: 300;
+  }
+
+  /* ── Reduced motion ──────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
-      animation-duration:      0.01ms !important;
-      animation-iteration-count: 1    !important;
-      transition-duration:     0.01ms !important;
+      animation-duration:        0.01ms !important;
+      animation-iteration-count: 1      !important;
+      transition-duration:       0.01ms !important;
     }
   }
 }
@@ -157,31 +144,22 @@
 @layer components {
 
   /* ── Font helpers ────────────────────────── */
-  .font-cormorant {
-    font-family: 'Cormorant Garamond', Georgia, serif;
-  }
-
-  .font-dm {
-    font-family: 'DM Sans', Arial, sans-serif;
-  }
+  .font-cormorant { font-family: 'Cormorant Garamond', Georgia, serif; }
+  .font-dm        { font-family: 'DM Sans', Arial, sans-serif; }
 
   /* ── Text roles ──────────────────────────── */
-
-  /* 10px / all-caps / wide tracking — eyebrows, metadata strips */
   .label-text {
     @apply font-dm font-medium uppercase;
     font-size:      0.625rem;
     letter-spacing: 0.18em;
   }
 
-  /* 12px / all-caps — button labels, instruction prompts */
   .instruction-text {
     @apply font-dm font-medium uppercase;
     font-size:      0.75rem;
     letter-spacing: 0.15em;
   }
 
-  /* Italic serif — scenario body copy */
   .scenario-text {
     @apply font-cormorant italic;
     font-size:   1.25rem;
@@ -189,44 +167,31 @@
   }
 
   /* ── Surface backgrounds ─────────────────── */
+  .bg-ground  { background-color: hsl(30 12% 7%); }
+  .bg-raised  { background-color: hsl(var(--secondary)); }
 
-  /*
-   * bg-ground — the outer app shell.
-   * One shade deeper than --background; used on the
-   * <body> wrapper in App.tsx to create a recessed
-   * stage for raised card surfaces.
-   */
-  .bg-ground {
-    background-color: hsl(30 12% 7%);
-  }
+  /* ── Background textures ─────────────────── */
 
-  /* Raised surface — matches --secondary */
-  .bg-raised {
-    background-color: hsl(var(--secondary));
-  }
-
-  /* ── Background patterns ─────────────────── */
-
-  /* 48-px grid overlay — rule/matrix views */
+  /* Rule/matrix grid — used on hero + session complete */
   .rule-matrix-bg {
     background-image:
       repeating-linear-gradient(
         0deg,
         transparent,
         transparent 47px,
-        rgb(var(--parchment-rgb) / 0.04) 47px,
-        rgb(var(--parchment-rgb) / 0.04) 48px
+        rgb(var(--parchment-rgb) / 0.035) 47px,
+        rgb(var(--parchment-rgb) / 0.035) 48px
       ),
       repeating-linear-gradient(
         90deg,
         transparent,
         transparent 47px,
-        rgb(var(--parchment-rgb) / 0.04) 47px,
-        rgb(var(--parchment-rgb) / 0.04) 48px
+        rgb(var(--parchment-rgb) / 0.035) 47px,
+        rgb(var(--parchment-rgb) / 0.035) 48px
       );
   }
 
-  /* Diagonal hatch — general accent surface */
+  /* Diagonal hatch — portrait area accent */
   .diagonal-hatch-bg {
     background-image: repeating-linear-gradient(
       45deg,
@@ -237,7 +202,7 @@
     );
   }
 
-  /* Card back — slightly denser hatch */
+  /* Card back */
   .card-back-pattern {
     background-image: repeating-linear-gradient(
       45deg,
@@ -249,13 +214,9 @@
   }
 
   /*
-   * Noise grain overlay — apply to any surface that
-   * needs tactile depth. Uses a pseudo-element so it
-   * never interferes with content or click targets.
-   *
-   * z-index: 1  keeps grain above the surface color
-   * pointer-events: none  keeps it invisible to input
-   * isolation: isolate  prevents stacking-context bleed
+   * Grain overlay — tactile film texture on all section surfaces.
+   * Rendered as a z-[1] ::after so it floats above the bg-color but
+   * below z-[10] content containers.
    */
   .grain-overlay {
     position: relative;
@@ -266,16 +227,14 @@
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 1;                  /* fixed: was -1, which hid grain behind bg-color */
+    z-index: 1;
     pointer-events: none;
-    opacity: 0.035;
+    opacity: 0.032;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
     background-size: 200px 200px;
   }
 
-  /* ── Interactive states ──────────────────── */
-
-  /* Primary ghost button — teal outline, no fill */
+  /* ── Buttons ─────────────────────────────── */
   .btn-ghost {
     @apply instruction-text;
     display: inline-flex;
@@ -291,14 +250,12 @@
       color        var(--duration-fast) var(--ease-standard),
       background   var(--duration-fast) var(--ease-standard);
   }
-
   .btn-ghost:hover {
     border-color: hsl(var(--primary));
     background:   hsl(var(--primary) / 0.08);
     color:        hsl(var(--foreground));
   }
 
-  /* Primary solid button */
   .btn-primary {
     @apply instruction-text;
     display: inline-flex;
@@ -313,7 +270,6 @@
       background var(--duration-fast) var(--ease-standard),
       box-shadow var(--duration-fast) var(--ease-standard);
   }
-
   .btn-primary:hover {
     background: hsl(168 28% 40%);
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4);
@@ -324,15 +280,9 @@
    UTILITY LAYER
 ───────────────────────────────────────────── */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
+  .text-pretty  { text-wrap: pretty; }
 
-  .text-pretty {
-    text-wrap: pretty;
-  }
-
-  /* Transition shorthand tokens — keyed to CSS vars above */
   .transition-colors-fast {
     transition:
       color            var(--duration-fast) var(--ease-standard),
@@ -344,13 +294,10 @@
     transition: opacity var(--duration-fast) var(--ease-standard);
   }
 
-  /* Muted foreground shorthand */
-  .text-muted {
-    color: hsl(var(--muted-foreground));
-  }
+  .text-muted    { color: hsl(var(--muted-foreground)); }
+  .border-subtle { border-color: hsl(var(--border) / 0.2); }
 
-  /* Hairline border in border token */
-  .border-subtle {
-    border-color: hsl(var(--border) / 0.2);
-  }
+  /* Hide scrollbar on immersive sections */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }

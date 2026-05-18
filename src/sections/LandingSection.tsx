@@ -27,11 +27,11 @@ const STATS = [
 
 export default function LandingSection({ onBegin }: LandingSectionProps) {
   return (
-    <section className="relative min-h-[100dvh] flex flex-col justify-center rule-matrix-bg overflow-hidden grain-overlay">
+    <section className="relative min-h-[100dvh] min-h-screen flex flex-col justify-center rule-matrix-bg overflow-hidden grain-overlay">
       <EchoField />
       <ThresholdPattern />
       {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between">
+      <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between relative z-[10]">
         <ValidLogo size="md" color="parchment" showTagline />
         <motion.div
           initial={{ opacity: 0 }}
@@ -70,7 +70,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
               variants={blurIn}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.7, delay: 0.25 + i * 0.09, ease: 'easeOut' }}
+              transition={{ duration: 0.6, delay: 0.18 + i * 0.07, ease: 'easeOut' }}
             >
               {word}
             </motion.span>
@@ -85,7 +85,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
               variants={blurIn}
               initial="hidden"
               animate="visible"
-              transition={{ duration: 0.7, delay: 0.25 + HERO_LINE1.length * 0.09 + i * 0.09, ease: 'easeOut' }}
+              transition={{ duration: 0.6, delay: 0.18 + HERO_LINE1.length * 0.07 + i * 0.07, ease: 'easeOut' }}
             >
               {word}
             </motion.span>
@@ -103,8 +103,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
                 initial="hidden"
                 animate="visible"
                 transition={{
-                  duration: 0.7,
-                  delay: 0.25 + (HERO_LINE1.length + HERO_LINE2.length) * 0.09 + i * 0.09,
+                  duration: 0.6,
+                  delay: 0.18 + (HERO_LINE1.length + HERO_LINE2.length) * 0.07 + i * 0.07,
                   ease: 'easeOut',
                 }}
                 style={isAccent ? emberStyle : undefined}
@@ -120,7 +120,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
           className="mt-10 font-dm text-base md:text-lg text-drift leading-[1.75] max-w-[500px]"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.0, ease: 'easeOut' }}
+          transition={{ duration: 0.6, delay: 0.72, ease: 'easeOut' }}
         >
           Knowing what to say and being able to say it under pressure are two different skills. This trains the second one — before the moment that demands it.
         </motion.p>
@@ -130,7 +130,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
           className="mt-10 flex flex-col items-start gap-5"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 1.25, ease: 'easeOut' }}
+          transition={{ duration: 0.6, delay: 0.90, ease: 'easeOut' }}
         >
           <div className="w-12 h-[2px] bg-ember" aria-hidden="true" />
 
@@ -158,7 +158,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
           className="mt-12 flex items-center gap-10 md:gap-16"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.5, ease: 'easeOut' }}
+          transition={{ duration: 0.6, delay: 1.08, ease: 'easeOut' }}
         >
           {STATS.map((stat, i) => (
             <div key={i} className="flex flex-col gap-1">

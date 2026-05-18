@@ -60,15 +60,15 @@ export default function Phase2Response({
   const [expandedMechanism, setExpandedMechanism] = useState<TierKey | null>(null)
 
   return (
-    <section className="min-h-screen bg-ground relative overflow-hidden">
+    <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       <ContainmentPattern />
       {/* Top bar */}
-      <div className="p-6 md:p-10 flex items-center justify-between">
+      <div className="relative z-[10] p-6 md:p-10 flex items-center justify-between">
         <ValidLogo size="sm" color="parchment" />
         <PhaseIndicator activePhase={2} />
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 md:px-10 pb-16">
+      <div className="relative z-[10] max-w-[1200px] mx-auto px-6 md:px-10 pb-16">
 
         {/* Header */}
         <motion.div
@@ -105,7 +105,7 @@ export default function Phase2Response({
                 className={style.offset}
               >
                 <article
-                  className="relative h-full flex flex-col"
+                  className="relative h-full flex flex-col overflow-hidden"
                   style={{
                     backgroundColor: '#1C1A18',
                     borderLeft: `3px ${style.borderStyle} ${style.accentColor}`,
@@ -118,6 +118,14 @@ export default function Phase2Response({
                     style={{ backgroundColor: style.accentColor, opacity: 0.6 }}
                     aria-hidden="true"
                   />
+                  {/* Ghost tier number — watermark */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute bottom-3 right-4 font-cormorant font-semibold leading-none select-none pointer-events-none tabular-nums"
+                    style={{ fontSize: 78, color: style.accentColor, opacity: 0.07 }}
+                  >
+                    {`0${i + 1}`}
+                  </div>
 
                   <div className="p-6 flex flex-col flex-1">
                     {/* Tier header */}

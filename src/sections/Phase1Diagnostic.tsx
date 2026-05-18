@@ -62,15 +62,15 @@ export default function Phase1Diagnostic({
   const handleFlip = useCallback(() => setIsFlipped((f) => !f), [])
 
   return (
-    <section className="min-h-screen bg-ground relative overflow-hidden">
+    <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       <ClinicalSignalPattern />
       {/* Top bar */}
-      <div className="p-6 md:p-10 flex items-center justify-between">
+      <div className="relative z-[10] p-6 md:p-10 flex items-center justify-between">
         <ValidLogo size="sm" color="parchment" />
         <PhaseIndicator activePhase={1} />
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-16 pb-20">
+      <div className="relative z-[10] max-w-[1100px] mx-auto px-6 md:px-16 pb-20">
 
         {/* Header */}
         <motion.div

@@ -74,7 +74,7 @@ export default function SessionComplete({ onPlayAgain, onReturn }: SessionComple
       aria-labelledby="session-complete-heading"
     >
       <p role="status" className="sr-only">Session complete. Well done.</p>
-      <EchoField />
+      <EchoField className="opacity-50" />
 
       {/* Confetti lines */}
       {!prefersReduced && (
@@ -86,7 +86,7 @@ export default function SessionComplete({ onPlayAgain, onReturn }: SessionComple
       )}
 
       {/* Top bar */}
-      <div className="relative z-10 p-6 md:p-10">
+      <div className="relative z-[10] p-6 md:p-10">
         <ValidLogo size="sm" color="parchment" />
       </div>
 

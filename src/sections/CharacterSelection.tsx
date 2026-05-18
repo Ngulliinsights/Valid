@@ -18,14 +18,14 @@ export default function CharacterSelection({
   onContinue,
 }: CharacterSelectionProps) {
   return (
-    <section className="min-h-screen bg-ground relative overflow-hidden">
+    <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       <DialogueStackPattern />
       {/* Top bar */}
-      <div className="p-6 md:p-10">
+      <div className="relative z-[10] p-6 md:p-10">
         <ValidLogo size="sm" color="parchment" />
       </div>
 
-      <div className="max-w-[1100px] mx-auto px-6 md:px-16 pb-20">
+      <div className="relative z-[10] max-w-[1100px] mx-auto px-6 md:px-16 pb-20">
 
         {/* Header */}
         <motion.div
@@ -70,7 +70,7 @@ export default function CharacterSelection({
                 transition={fadeUpTransition(0.18 + i * 0.12)}
                 data-cursor-hover
                 onClick={() => onSelect(character)}
-                className="group relative text-left transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember"
+                className="group relative text-left transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember hover:-translate-y-1"
               >
                 <div
                   className="h-full flex flex-col transition-all duration-300"
