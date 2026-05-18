@@ -4,6 +4,7 @@ import ValidLogo from '../components/ValidLogo'
 import PhaseIndicator from '../components/PhaseIndicator'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
 import type { ScenarioData } from '../App'
+import { ContainmentPattern } from '../components/patterns'
 
 interface Phase2ResponseProps {
   scenario: ScenarioData
@@ -59,7 +60,8 @@ export default function Phase2Response({
   const [expandedMechanism, setExpandedMechanism] = useState<TierKey | null>(null)
 
   return (
-    <section className="min-h-screen bg-ground relative">
+    <section className="min-h-screen bg-ground relative overflow-hidden">
+      <ContainmentPattern />
       {/* Top bar */}
       <div className="p-6 md:p-10 flex items-center justify-between">
         <ValidLogo size="sm" color="parchment" />

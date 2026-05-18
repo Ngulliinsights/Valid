@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import type { Character } from '../App'
 import ValidLogo from '../components/ValidLogo'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
+import { DialogueStackPattern } from '../components/patterns'
 
 interface CharacterSelectionProps {
   characters: Character[]
@@ -17,7 +18,8 @@ export default function CharacterSelection({
   onContinue,
 }: CharacterSelectionProps) {
   return (
-    <section className="min-h-screen bg-ground relative">
+    <section className="min-h-screen bg-ground relative overflow-hidden">
+      <DialogueStackPattern />
       {/* Top bar */}
       <div className="p-6 md:p-10">
         <ValidLogo size="sm" color="parchment" />
@@ -73,12 +75,11 @@ export default function CharacterSelection({
                 <div
                   className="h-full flex flex-col transition-all duration-300"
                   style={{
-                    borderLeft: `3px solid ${isSelected ? '#C4882A' : 'rgba(196, 136, 42, 0.2)'}`,
-                    border: `1px solid ${isSelected ? 'rgba(196, 136, 42, 0.45)' : 'rgba(154, 148, 136, 0.15)'}`,
-                    borderLeftWidth: 3,
-                    borderLeftStyle: 'solid',
-                    borderLeftColor: isSelected ? '#C4882A' : 'rgba(196, 136, 42, 0.2)',
-                    backgroundColor: isSelected ? 'rgba(196, 136, 42, 0.05)' : '#1C1A18',
+                    borderTop:    `1px solid ${isSelected ? 'rgba(196,136,42,0.45)' : 'rgba(154,148,136,0.15)'}`,
+                    borderRight:  `1px solid ${isSelected ? 'rgba(196,136,42,0.45)' : 'rgba(154,148,136,0.15)'}`,
+                    borderBottom: `1px solid ${isSelected ? 'rgba(196,136,42,0.45)' : 'rgba(154,148,136,0.15)'}`,
+                    borderLeft:   `3px solid ${isSelected ? '#C4882A' : 'rgba(196,136,42,0.2)'}`,
+                    backgroundColor: isSelected ? 'rgba(196,136,42,0.05)' : '#1C1A18',
                     transform: isSelected ? 'translateY(-4px)' : undefined,
                   }}
                 >

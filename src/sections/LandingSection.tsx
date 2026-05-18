@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import { blurIn } from '../lib/motion'
+import { EchoField, ThresholdPattern } from '../components/patterns'
 
 interface LandingSectionProps {
   onBegin: () => void
@@ -27,6 +28,8 @@ const STATS = [
 export default function LandingSection({ onBegin }: LandingSectionProps) {
   return (
     <section className="relative min-h-[100dvh] flex flex-col justify-center rule-matrix-bg overflow-hidden grain-overlay">
+      <EchoField />
+      <ThresholdPattern />
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between">
         <ValidLogo size="md" color="parchment" showTagline />

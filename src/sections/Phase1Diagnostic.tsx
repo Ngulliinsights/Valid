@@ -4,6 +4,7 @@ import ValidLogo from '../components/ValidLogo'
 import PhaseIndicator from '../components/PhaseIndicator'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
 import type { ScenarioData } from '../App'
+import { ClinicalSignalPattern } from '../components/patterns'
 
 interface Phase1DiagnosticProps {
   scenario: ScenarioData
@@ -61,7 +62,8 @@ export default function Phase1Diagnostic({
   const handleFlip = useCallback(() => setIsFlipped((f) => !f), [])
 
   return (
-    <section className="min-h-screen bg-ground relative">
+    <section className="min-h-screen bg-ground relative overflow-hidden">
+      <ClinicalSignalPattern />
       {/* Top bar */}
       <div className="p-6 md:p-10 flex items-center justify-between">
         <ValidLogo size="sm" color="parchment" />

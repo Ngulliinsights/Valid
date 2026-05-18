@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import { fadeUp, fadeUpTransition, blurIn } from '../lib/motion'
+import { EchoField } from '../components/patterns'
 
 interface SessionCompleteProps {
   onPlayAgain: () => void
@@ -69,10 +70,11 @@ export default function SessionComplete({ onPlayAgain, onReturn }: SessionComple
 
   return (
     <section
-      className="min-h-screen bg-ground relative flex flex-col rule-matrix-bg"
+      className="min-h-screen bg-ground relative flex flex-col rule-matrix-bg overflow-hidden"
       aria-labelledby="session-complete-heading"
     >
       <p role="status" className="sr-only">Session complete. Well done.</p>
+      <EchoField />
 
       {/* Confetti lines */}
       {!prefersReduced && (

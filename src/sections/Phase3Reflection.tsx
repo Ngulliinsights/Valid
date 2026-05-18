@@ -4,6 +4,7 @@ import ValidLogo from '../components/ValidLogo'
 import PhaseIndicator from '../components/PhaseIndicator'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
 import type { ScenarioData, ScoreData } from '../App'
+import { FractureGrid } from '../components/patterns'
 
 interface Phase3ReflectionProps {
   scenario: ScenarioData
@@ -87,7 +88,8 @@ export default function Phase3Reflection({ scenario, score, onContinue }: Phase3
   const canContinue = reflectionText.trim().length > 0
 
   return (
-    <section className="min-h-screen bg-ground relative">
+    <section className="min-h-screen bg-ground relative overflow-hidden">
+      <FractureGrid />
       {/* Top bar */}
       <div className="p-6 md:p-10 flex items-center justify-between">
         <ValidLogo size="sm" color="parchment" />
