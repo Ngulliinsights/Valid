@@ -1,8 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 160">
-  <rect width="220" height="160" fill="#1A1814"/>
-  <path d="M 92 14 C 32 44, 32 116, 92 146 C 62 116, 62 44, 92 14 Z" fill="#F2EDDF"/>
-  <path d="M 128 14 C 188 44, 188 116, 128 146 C 158 116, 158 44, 128 14 Z" fill="#F2EDDF"/>
-  <circle cx="110" cy="38"  r="8.5" fill="#E8E0D0"/>
-  <circle cx="110" cy="80"  r="11"  fill="#C4882A"/>
-  <circle cx="110" cy="122" r="11"  fill="#7A9AAD"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 200">
+  <rect width="220" height="200" fill="#1A1814"/>
+  <!-- Left crescent with dulled tips -->
+  <path d="
+    M 96 26
+    C 68 52, 68 148, 96 174
+    C 96 179, 89 182, 86 178
+    C 36 152, 36 48, 86 22
+    C 90 18, 96 22, 96 26
+    Z
+  " fill="#F2EDDF"/>
+  <!-- Right crescent (mirror) -->
+  <path d="
+    M 124 26
+    C 152 52, 152 148, 124 174
+    C 124 179, 131 182, 134 178
+    C 184 152, 184 48, 134 22
+    C 130 18, 124 22, 124 26
+    Z
+  " fill="#F2EDDF"/>
+  <!-- Dots -->
+  <circle cx="110" cy="65"  r="8.5"  fill="#E8E0D0"/>
+  <circle cx="110" cy="100" r="12"   fill="#C4882A"/>
+  <circle cx="110" cy="135" r="11"   fill="#7A9AAD"/>
 </svg>

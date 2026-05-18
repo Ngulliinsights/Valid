@@ -14,10 +14,38 @@ export default function ValidLogo({
   tagline = 'THERAPEUTIC CONNECTIONS · PROFESSIONAL',
 }: ValidLogoProps) {
 
+  /*
+   * ViewBox: 0 0 220 200   Symbol center: (110, 100)
+   *
+   * GEOMETRY RATIONALE
+   * ─────────────────────────────────────────────────────────
+   * Each crescent is built from two bezier arcs (inner + outer)
+   * connected at both tips by a small bezier cap. The cap is the
+   * key to the dulled/blunted tip — inner and outer arcs never
+   * meet at the same point; instead a short curve bridges them,
+   * producing a soft, rounded termination consistent with the mark.
+   *
+   * Left crescent anchor points:
+   *   Inner top:    (96, 26)   Inner bottom: (96, 174)
+   *   Outer top:    (86, 22)   Outer bottom: (86, 178)
+   *   Inner mid:    (75, 100)  Outer mid:    (48, 100)   ← calculated
+   *   Crescent belly thickness ≈ 27 units (12% of viewBox width)
+   *
+   * Bottom cap:  (96,174) → bezier → (86,178)   [dips slightly below]
+   * Top cap:     (86,22)  → bezier → (96,26)    [rises slightly above]
+   *
+   * Dot positions (breathing room from arch tips):
+   *   Top  cy=65  (gap from tip y=22: 34 px)
+   *   Mid  cy=100 (vertical centre)
+   *   Bot  cy=135 (gap from tip y=178: 32 px)
+   *
+   * Right crescent: mirror across x=110  (x → 220-x)
+   */
+
   const sizes = {
-    sm: { wordmark: 19, tagline: 8,  symW: 78,  symH: 56  },
-    md: { wordmark: 28, tagline: 10, symW: 118, symH: 84  },
-    lg: { wordmark: 40, tagline: 11, symW: 150, symH: 106 },
+    sm: { wordmark: 19, tagline: 8,  symW: 78,  symH: 71  },
+    md: { wordmark: 28, tagline: 10, symW: 118, symH: 107 },
+    lg: { wordmark: 40, tagline: 11, symW: 150, symH: 136 },
   }
 
   const s = sizes[size]
@@ -25,35 +53,32 @@ export default function ValidLogo({
   const textColor    = color === 'parchment' ? '#F2EDDF' : '#3D6B65'
   const taglineColor = color === 'parchment' ? '#9A9488' : '#5E8880'
 
-  const DOT_TOP = '#E8E0D0'   // cream
-  const DOT_MID = '#C4882A'   // terracotta
-  const DOT_BOT = '#7A9AAD'   // slate blue
+  const DOT_TOP = '#E8E0D0'
+  const DOT_MID = '#C4882A'
+  const DOT_BOT = '#7A9AAD'
 
-  /*
-   * MERGED APPROACH:
-   *
-   * Version 1 used filled closed paths (crescent shapes) — accurate to the logo
-   * but the inner-curve control points produced a slightly boxy belly.
-   *
-   * Version 2 used a single stroked open arc — elegant math but the uniform
-   * stroke weight loses the tapered-tip character of the real mark.
-   *
-   * MERGED: filled closed path whose outer curve mirrors v2's wide, smooth
-   * arc, while the inner curve is a tighter parallel arc that preserves the
-   * natural taper at the tips — giving us the crescent solidity of v1 with
-   * the refined curvature of v2.
-   *
-   * ViewBox: 0 0 220 160
-   * Symbol center: (110, 80)
-   *
-   * Left crescent
-   *   Outer edge:  M(92,14) → C(32,44, 32,116, 92,146)   wide leftward sweep
-   *   Inner edge:  C(62,116, 62,44, 92,14)                tighter, stays right of outer
-   *
-   * Right crescent (mirror across x=110)
-   *   Outer edge:  M(128,14) → C(188,44, 188,116, 128,146)
-   *   Inner edge:  C(158,116, 158,44, 128,14)
+  /* ── LEFT CRESCENT ──────────────────────────────────────
+   * Read as: start at inner-top → inner arc down → bottom cap
+   *          → outer arc up → top cap → close
    */
+  const LEFT = `
+    M 96 26
+    C 68 52, 68 148, 96 174
+    C 96 179, 89 182, 86 178
+    C 36 152, 36 48, 86 22
+    C 90 18, 96 22, 96 26
+    Z
+  `
+
+  /* ── RIGHT CRESCENT (mirror: x → 220-x) ─────────────── */
+  const RIGHT = `
+    M 124 26
+    C 152 52, 152 148, 124 174
+    C 124 179, 131 182, 134 178
+    C 184 152, 184 48, 134 22
+    C 130 18, 124 22, 124 26
+    Z
+  `
 
   return (
     <div
@@ -64,42 +89,26 @@ export default function ValidLogo({
       <svg
         width={s.symW}
         height={s.symH}
-        viewBox="0 0 220 160"
+        viewBox="0 0 220 200"
         fill="none"
         aria-hidden="true"
       >
-        {/* ── Left crescent ─────────────────────────────────────── */}
-        <path
-          d="
-            M 92 14
-            C 32 44, 32 116, 92 146
-            C 62 116, 62 44, 92 14
-            Z
-          "
-          fill={textColor}
-        />
+        {/* ── Left crescent ─────────────────────────── */}
+        <path d={LEFT}  fill={textColor} />
 
-        {/* ── Right crescent (mirrored) ──────────────────────────── */}
-        <path
-          d="
-            M 128 14
-            C 188 44, 188 116, 128 146
-            C 158 116, 158 44, 128 14
-            Z
-          "
-          fill={textColor}
-        />
+        {/* ── Right crescent ────────────────────────── */}
+        <path d={RIGHT} fill={textColor} />
 
-        {/* ── Three-dot vertical axis ────────────────────────────── */}
-        {/* Top — smaller, cream; sits between the arc tips */}
-        <circle cx="110" cy="38"  r="8.5" fill={DOT_TOP} />
-        {/* Mid — dominant, terracotta; visual center of gravity */}
-        <circle cx="110" cy="80"  r="11"  fill={DOT_MID} />
-        {/* Bot — steel blue; grounds the mark */}
-        <circle cx="110" cy="122" r="11"  fill={DOT_BOT} />
+        {/* ── Three-dot vertical axis ───────────────── */}
+        {/* Top — cream, intentionally smaller */}
+        <circle cx="110" cy="65"  r="8.5"  fill={DOT_TOP} />
+        {/* Mid — ember, dominant weight */}
+        <circle cx="110" cy="100" r="12"   fill={DOT_MID} />
+        {/* Bot — slate blue, grounds the mark */}
+        <circle cx="110" cy="135" r="11"   fill={DOT_BOT} />
       </svg>
 
-      {/* ── Wordmark ───────────────────────────────────────────── */}
+      {/* ── Wordmark ──────────────────────────────────── */}
       <span
         className="font-cormorant font-semibold"
         style={{
@@ -107,13 +116,13 @@ export default function ValidLogo({
           color:         textColor,
           letterSpacing: '0.22em',
           lineHeight:    1,
-          marginTop:     5,
+          marginTop:     4,
         }}
       >
         VALID
       </span>
 
-      {/* ── Optional tagline ───────────────────────────────────── */}
+      {/* ── Optional tagline ──────────────────────────── */}
       {showTagline && (
         <span
           className="font-dm font-medium uppercase"

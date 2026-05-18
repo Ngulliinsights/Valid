@@ -4,20 +4,50 @@
    Content containers must use relative z-[10] to sit above.
    All opacities calibrated to the brand spec: 3–12%.
    All patterns are deterministic — no Math.random().
+
+   ValidMark geometry matches ValidLogo.tsx exactly:
+     ViewBox 0 0 220 200, crescents with dulled tips,
+     dots at cy 65/100/135 for breathing room.
 ───────────────────────────────────────────────────────────────── */
 
-const LEFT_ARC  = 'M 92 14 C 32 44, 32 116, 92 146 C 62 116, 62 44, 92 14 Z'
-const RIGHT_ARC = 'M 128 14 C 188 44, 188 116, 128 146 C 158 116, 158 44, 128 14 Z'
+/* ── Shared crescent paths (kept in sync with ValidLogo.tsx) ── */
+const LEFT_ARC = `
+  M 96 26
+  C 68 52, 68 148, 96 174
+  C 96 179, 89 182, 86 178
+  C 36 152, 36 48, 86 22
+  C 90 18, 96 22, 96 26
+  Z
+`
+const RIGHT_ARC = `
+  M 124 26
+  C 152 52, 152 148, 124 174
+  C 124 179, 131 182, 134 178
+  C 184 152, 184 48, 134 22
+  C 130 18, 124 22, 124 26
+  Z
+`
 
+/* Inline mark used by every pattern that scatters Valid symbols */
 function ValidMark({ color = '#F2EDDF' }: { color?: string }) {
   return (
     <>
       <path d={LEFT_ARC}  fill={color} />
       <path d={RIGHT_ARC} fill={color} />
-      <circle cx="110" cy="38"  r="8.5" fill={color} opacity="0.7" />
-      <circle cx="110" cy="80"  r="11"  fill="#C4882A" />
-      <circle cx="110" cy="122" r="11"  fill="#3D6B65" />
+      <circle cx="110" cy="65"  r="8.5"  fill={color} opacity="0.75" />
+      <circle cx="110" cy="100" r="12"   fill="#C4882A" />
+      <circle cx="110" cy="135" r="11"   fill="#3D6B65" />
     </>
+  )
+}
+
+/* Helper: render a ValidMark at a given size inside an svg wrapper */
+function MarkAt({ size }: { size: number }) {
+  const h = size * (200 / 220)
+  return (
+    <svg viewBox="0 0 220 200" width={size} height={h}>
+      <ValidMark />
+    </svg>
   )
 }
 
@@ -29,17 +59,17 @@ interface PatternProps {
    01 · ECHO FIELD
    "Validation reverberation"
    Faded Valid symbols scattered asymmetrically.
-   Use: hero backgrounds, session complete.
+   Use: Landing hero, Session Complete.
 ───────────────────────────────────────────── */
 export function EchoField({ className = '' }: PatternProps) {
   const symbols = [
-    { x: -32,  y: 440, size: 260, opacity: 0.038 },
-    { x: 480,  y: -55, size: 155, opacity: 0.048 },
-    { x: 800,  y: 390, size: 95,  opacity: 0.028 },
-    { x: 185,  y: 530, size: 75,  opacity: 0.028 },
-    { x: 960,  y: 130, size: 185, opacity: 0.042 },
-    { x: 360,  y: 270, size: 55,  opacity: 0.022 },
-    { x: 1090, y: 530, size: 125, opacity: 0.032 },
+    { x: -32,  y: 400, size: 260, opacity: 0.038 },
+    { x: 480,  y: -60, size: 155, opacity: 0.048 },
+    { x: 800,  y: 360, size: 95,  opacity: 0.028 },
+    { x: 185,  y: 490, size: 75,  opacity: 0.028 },
+    { x: 960,  y: 100, size: 185, opacity: 0.042 },
+    { x: 360,  y: 240, size: 55,  opacity: 0.022 },
+    { x: 1090, y: 490, size: 125, opacity: 0.032 },
   ]
   return (
     <svg
@@ -51,9 +81,7 @@ export function EchoField({ className = '' }: PatternProps) {
     >
       {symbols.map((s, i) => (
         <g key={i} transform={`translate(${s.x},${s.y})`} opacity={s.opacity}>
-          <svg viewBox="0 0 220 160" width={s.size} height={(s.size * 160) / 220}>
-            <ValidMark />
-          </svg>
+          <MarkAt size={s.size} />
         </g>
       ))}
     </svg>
@@ -64,7 +92,7 @@ export function EchoField({ className = '' }: PatternProps) {
    02 · CONTAINMENT PATTERN
    "Held space"
    Repeating crescent arcs from the parentheses.
-   Use: Phase 2 Response Analysis (held tension).
+   Use: Phase 2 Response Analysis.
 ───────────────────────────────────────────── */
 export function ContainmentPattern({ className = '' }: PatternProps) {
   return (
@@ -94,8 +122,8 @@ export function ContainmentPattern({ className = '' }: PatternProps) {
 /* ─────────────────────────────────────────────
    03 · DIALOGUE STACK
    "Three emotional states"
-   Vertical dot stacks — some missing, some glowing.
-   Use: Character Selection (the three lenses).
+   Vertical dot stacks — some missing or displaced.
+   Use: Character Selection.
 ───────────────────────────────────────────── */
 export function DialogueStackPattern({ className = '' }: PatternProps) {
   type Stack = { x: number; y: number; missing?: number; ember?: boolean; tide?: boolean }
@@ -333,14 +361,12 @@ export function ThresholdPattern({ className = '' }: PatternProps) {
       viewBox={`0 0 ${W} ${H}`}
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Seam: very faint Ember line at left edge — the "space before contact" */}
+      {/* Seam — very faint Ember hairline at left edge */}
       <line x1="0" y1="0" x2="0" y2={H}
         stroke="#C4882A" strokeWidth="1" opacity="0.07" />
       {syms.map((s, i) => (
         <g key={i} transform={`translate(${s.x},${s.y})`} opacity={s.opacity}>
-          <svg viewBox="0 0 220 160" width={s.size} height={(s.size * 160) / 220}>
-            <ValidMark />
-          </svg>
+          <MarkAt size={s.size} />
         </g>
       ))}
     </svg>
