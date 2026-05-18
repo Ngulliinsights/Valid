@@ -1,0 +1,349 @@
+/* ─────────────────────────────────────────────
+   FONT IMPORTS
+   Cormorant Garamond — editorial serif for
+   scenario copy and display headings.
+   DM Sans — clean sans for labels and UI chrome.
+   Both loaded here so every layer below can rely on them.
+───────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+   All values in HSL channel notation for
+   Tailwind's hsl() composition.
+───────────────────────────────────────────── */
+@layer base {
+  :root {
+    /* Surface */
+    --background:         30 14%  9%;
+    --foreground:         40 28% 91%;
+
+    /* Card / Popover share the base surface */
+    --card:               30 14%  9%;
+    --card-foreground:    40 28% 91%;
+    --popover:            30 14%  9%;
+    --popover-foreground: 40 28% 91%;
+
+    /* Brand */
+    --primary:            168 28% 33%;
+    --primary-foreground:  30 14%  9%;
+
+    /* Raised surface — one step lighter than bg */
+    --secondary:          30 14% 15%;
+    --secondary-foreground: 40 28% 91%;
+
+    /* Suppressed / disabled surface */
+    --muted:              30  8% 20%;
+    --muted-foreground:   36  8% 57%;
+
+    /* Accent mirrors primary for now; override if needed */
+    --accent:             168 28% 33%;
+    --accent-foreground:   30 14%  9%;
+
+    /* Danger */
+    --destructive:           0 50% 54%;
+    --destructive-foreground: 40 28% 91%;
+
+    /* Chrome */
+    --border: 36  8% 57%;
+    --input:  36  8% 57%;
+    --ring:  168 28% 33%;
+
+    /* Geometry */
+    --radius: 0px;
+
+    /* Palette aliases (used in pattern helpers below) */
+    --parchment-rgb: 242, 237, 223;
+    --teal-rgb:       61, 107, 101;
+
+    /* Logo accent dots
+       Accessible in Tailwind as: text-mark-top, bg-mark-mid, etc.
+       Defined as hex here; mapped to Tailwind config via CSS vars. */
+    --mark-top: #E8E0D0;
+    --mark-mid: #C05A2E;
+    --mark-bot: #7A9AAD;
+
+    /* Timing — single source of truth for all transitions */
+    --duration-fast:   120ms;
+    --duration-medium: 240ms;
+    --duration-slow:   400ms;
+    --ease-standard:   cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Reset ───────────────────────────────── */
+  *,
+  *::before,
+  *::after {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  /* ── Document ────────────────────────────── */
+  html {
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    /* Prevent iOS font-size bump on orientation change */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Warm vignette — deepens the header zone */
+    background-image: radial-gradient(
+      ellipse 120% 80% at 50% 0%,
+      hsl(30 20% 12% / 0.6) 0%,
+      transparent 70%
+    );
+  }
+
+  /* ── Selection ───────────────────────────── */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.35);
+    color: hsl(var(--foreground));
+  }
+
+  /* ── Scrollbar (Webkit) ──────────────────── */
+  ::-webkit-scrollbar        { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track  { background: hsl(var(--background)); }
+  ::-webkit-scrollbar-thumb  {
+    background: hsl(var(--muted-foreground) / 0.4);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.7);
+  }
+
+  /* ── Focus ───────────────────────────────── */
+  textarea:focus,
+  input:focus,
+  select:focus {
+    outline: none;
+  }
+
+  button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.8);
+  }
+
+  /* ── Reduced motion ──────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration:      0.01ms !important;
+      animation-iteration-count: 1    !important;
+      transition-duration:     0.01ms !important;
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   COMPONENT LAYER
+───────────────────────────────────────────── */
+@layer components {
+
+  /* ── Font helpers ────────────────────────── */
+  .font-cormorant {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-dm {
+    font-family: 'DM Sans', Arial, sans-serif;
+  }
+
+  /* ── Text roles ──────────────────────────── */
+
+  /* 10px / all-caps / wide tracking — eyebrows, metadata strips */
+  .label-text {
+    @apply font-dm font-medium uppercase;
+    font-size:      0.625rem;
+    letter-spacing: 0.18em;
+  }
+
+  /* 12px / all-caps — button labels, instruction prompts */
+  .instruction-text {
+    @apply font-dm font-medium uppercase;
+    font-size:      0.75rem;
+    letter-spacing: 0.15em;
+  }
+
+  /* Italic serif — scenario body copy */
+  .scenario-text {
+    @apply font-cormorant italic;
+    font-size:   1.25rem;
+    line-height: 1.7;
+  }
+
+  /* ── Surface backgrounds ─────────────────── */
+
+  /*
+   * bg-ground — the outer app shell.
+   * One shade deeper than --background; used on the
+   * <body> wrapper in App.tsx to create a recessed
+   * stage for raised card surfaces.
+   */
+  .bg-ground {
+    background-color: hsl(30 12% 7%);
+  }
+
+  /* Raised surface — matches --secondary */
+  .bg-raised {
+    background-color: hsl(var(--secondary));
+  }
+
+  /* ── Background patterns ─────────────────── */
+
+  /* 48-px grid overlay — rule/matrix views */
+  .rule-matrix-bg {
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 47px,
+        rgb(var(--parchment-rgb) / 0.04) 47px,
+        rgb(var(--parchment-rgb) / 0.04) 48px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 47px,
+        rgb(var(--parchment-rgb) / 0.04) 47px,
+        rgb(var(--parchment-rgb) / 0.04) 48px
+      );
+  }
+
+  /* Diagonal hatch — general accent surface */
+  .diagonal-hatch-bg {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 11px,
+      rgb(var(--teal-rgb) / 0.05) 11px,
+      rgb(var(--teal-rgb) / 0.05) 12px
+    );
+  }
+
+  /* Card back — slightly denser hatch */
+  .card-back-pattern {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 11px,
+      rgb(var(--teal-rgb) / 0.08) 11px,
+      rgb(var(--teal-rgb) / 0.08) 12px
+    );
+  }
+
+  /*
+   * Noise grain overlay — apply to any surface that
+   * needs tactile depth. Uses a pseudo-element so it
+   * never interferes with content or click targets.
+   *
+   * z-index: 1  keeps grain above the surface color
+   * pointer-events: none  keeps it invisible to input
+   * isolation: isolate  prevents stacking-context bleed
+   */
+  .grain-overlay {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .grain-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;                  /* fixed: was -1, which hid grain behind bg-color */
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* ── Interactive states ──────────────────── */
+
+  /* Primary ghost button — teal outline, no fill */
+  .btn-ghost {
+    @apply instruction-text;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    border: 1px solid hsl(var(--primary) / 0.5);
+    color: hsl(var(--primary));
+    background: transparent;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      color        var(--duration-fast) var(--ease-standard),
+      background   var(--duration-fast) var(--ease-standard);
+  }
+
+  .btn-ghost:hover {
+    border-color: hsl(var(--primary));
+    background:   hsl(var(--primary) / 0.08);
+    color:        hsl(var(--foreground));
+  }
+
+  /* Primary solid button */
+  .btn-primary {
+    @apply instruction-text;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.5rem;
+    background: hsl(var(--primary));
+    color:      hsl(var(--primary-foreground));
+    border:     1px solid transparent;
+    cursor:     pointer;
+    transition:
+      background var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+  }
+
+  .btn-primary:hover {
+    background: hsl(168 28% 40%);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   UTILITY LAYER
+───────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Transition shorthand tokens — keyed to CSS vars above */
+  .transition-colors-fast {
+    transition:
+      color            var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard),
+      border-color     var(--duration-fast) var(--ease-standard);
+  }
+
+  .transition-opacity-fast {
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+
+  /* Muted foreground shorthand */
+  .text-muted {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Hairline border in border token */
+  .border-subtle {
+    border-color: hsl(var(--border) / 0.2);
+  }
+}

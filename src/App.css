@@ -1,0 +1,207 @@
+/* ─────────────────────────────────────────────
+   APP SHELL
+   Root layout and structural chrome.
+   Relies on design tokens defined in globals.css.
+───────────────────────────────────────────── */
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+
+  /* Vertical rhythm: content stacks from top, never orphans */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  /* Clamp at readable width; let sections manage their own gutters */
+  max-width: 1280px;
+  margin-inline: auto;
+
+  /* No default padding — sections own their spacing */
+  padding: 0;
+  text-align: left;
+}
+
+
+/* ─────────────────────────────────────────────
+   WORDMARK / LOGO LOCKUP
+   Replace the generic Vite spin with a treatment
+   that matches the card-game's editorial register.
+───────────────────────────────────────────── */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Scale to context; override per usage site */
+  height: 2rem;
+
+  /* Crisp render at any DPR */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+
+  /* Measured reveal — mirrors the rest of the UI's 120 ms tokens */
+  transition: opacity 120ms ease, filter 120ms ease;
+  will-change: opacity;
+}
+
+.logo:hover {
+  opacity: 0.82;
+  /* Warm teal bloom — uses --primary token from globals */
+  filter: drop-shadow(0 0 10px hsl(168 28% 33% / 0.45));
+}
+
+/* No spin. The brand is deliberate, not decorative. */
+
+
+/* ─────────────────────────────────────────────
+   CARD SURFACE
+   Matches the elevated surface in the game UI:
+   secondary bg, sharp edges, diagonal hatch available.
+───────────────────────────────────────────── */
+
+.card {
+  /* Raised surface — one step above background */
+  background-color: hsl(30 14% 15%);        /* --secondary */
+  color:            hsl(40 28% 91%);         /* --foreground */
+
+  /* Sharp geometry — zero radius, full border */
+  border-radius: 0;
+  border: 1px solid hsl(36 8% 57% / 0.22);  /* --border at low opacity */
+
+  /* Internal rhythm */
+  padding: 2rem;
+
+  /* Subtle lift */
+  box-shadow:
+    0 1px 0   hsl(40 28% 91% / 0.04) inset,
+    0 4px 24px hsl(30 14% 4%  / 0.55);
+
+  /* Transition on interactive cards */
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.card:is(a, button, [role="button"]):hover,
+.card[data-interactive]:hover {
+  border-color: hsl(168 28% 33% / 0.55);    /* --primary */
+  box-shadow:
+    0 1px 0   hsl(40 28% 91% / 0.04) inset,
+    0 6px 32px hsl(30 14% 4%  / 0.65),
+    0 0   0 1px hsl(168 28% 33% / 0.2);
+}
+
+
+/* ─────────────────────────────────────────────
+   INSTRUCTIONAL / SECONDARY TEXT
+   Replaces the generic .read-the-docs helper.
+   Matches --muted-foreground from the token set.
+───────────────────────────────────────────── */
+
+.text-subdued {
+  color: hsl(36 8% 57%);    /* --muted-foreground */
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* Legacy alias — safe to remove once all callsites are updated */
+.read-the-docs {
+  composes: text-subdued;
+  color: hsl(36 8% 57%);
+}
+
+
+/* ─────────────────────────────────────────────
+   PAGE-LEVEL SECTION WRAPPER
+   Consistent horizontal gutter across all phases.
+───────────────────────────────────────────── */
+
+.section-wrapper {
+  width: 100%;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
+  padding-block:  clamp(2rem, 6vh, 5rem);
+}
+
+
+/* ─────────────────────────────────────────────
+   DIVIDER
+   Hairline rule in the brand's border token.
+───────────────────────────────────────────── */
+
+.rule {
+  border: none;
+  border-top: 1px solid hsl(36 8% 57% / 0.18);
+  margin-block: 0;
+}
+
+
+/* ─────────────────────────────────────────────
+   PHASE LABEL STRIP
+   The narrow eyebrow bar that appears above
+   scenario content — label-text treatment.
+───────────────────────────────────────────── */
+
+.phase-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 0.625rem;          /* 10px — matches .label-text */
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: hsl(36 8% 57%);        /* --muted-foreground */
+}
+
+.phase-label::before,
+.phase-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: hsl(36 8% 57% / 0.18);
+}
+
+
+/* ─────────────────────────────────────────────
+   TEAL ACCENT DOT
+   Decorative mark borrowed from the logo system.
+   Uses CSS variables for consistency with refined mark colors.
+───────────────────────────────────────────── */
+
+.accent-dot {
+  display: inline-block;
+  width:  5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--mark-mid);  /* #C05A2E — refined burnt orange */
+  flex-shrink: 0;
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+
+.accent-dot--top   { background-color: var(--mark-top); }  /* #E8E0D0 — cream */
+.accent-dot--mid   { background-color: var(--mark-mid); }  /* #C05A2E — burnt orange */
+.accent-dot--bot   { background-color: var(--mark-bot); }  /* #7A9AAD — slate blue */
+.accent-dot--teal  { background-color: hsl(var(--primary)); }  /* brand teal */
+
+/* ─────────────────────────────────────────────
+   LOGO COLOR UTILITIES
+   Cascaded from refined mark system.
+   Access in templates: text-mark-* | bg-mark-*
+───────────────────────────────────────────── */
+
+.text-mark-top { color: var(--mark-top); }
+.text-mark-mid { color: var(--mark-mid); }
+.text-mark-bot { color: var(--mark-bot); }
+
+.bg-mark-top { background-color: var(--mark-top); }
+.bg-mark-mid { background-color: var(--mark-mid); }
+.bg-mark-bot { background-color: var(--mark-bot); }
+
+.border-mark-top { border-color: var(--mark-top); }
+.border-mark-mid { border-color: var(--mark-mid); }
+.border-mark-bot { border-color: var(--mark-bot); }

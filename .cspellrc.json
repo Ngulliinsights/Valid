@@ -1,0 +1,19 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "cmdk",
+    "vaul",
+    "Radix",
+    "Lenis",
+    "Recharts",
+    "Sonner",
+    "autoprefixer",
+    "postcss",
+    "tailwindcss",
+    "Vite",
+    "resolvers"
+  ],
+  "ignoreWords": [],
+  "import": []
+}
