@@ -60,6 +60,13 @@
     --parchment-rgb: 242, 237, 223;
     --teal-rgb:       61, 107, 101;
 
+    /* Named hex tokens — used by JS components like CustomCursor */
+    --parchment: #F2EDDF;
+    --tide:      #3D6B65;
+    --ember:     #C4882A;
+    --ground:    #1A1814;
+    --drift:     #9A9488;
+
     /* Logo accent dots
        Accessible in Tailwind as: text-mark-top, bg-mark-mid, etc.
        Defined as hex here; mapped to Tailwind config via CSS vars. */
