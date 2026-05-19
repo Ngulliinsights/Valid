@@ -12,7 +12,6 @@ import { analyzeResponseType } from './lib/responseAnalysis'
 import type { AnalysisResult } from './lib/responseAnalysis'
 import { SCENARIOS } from './data/scenarios'
 
-// Centralized configurations, types, and mappings
 import { RESPONSE_TIER_MAP, VERTICAL_LABELS } from './config/scenarioConfig'
 import type {
   ScenarioSelection as ScenarioSelectionState,
@@ -22,6 +21,7 @@ import type {
   VerticalKey,
   ComplexityLevel,
 } from './config/scenarioConfig'
+
 export type { ScenarioData, ResponseTier }
 
 export type PracticePhase =
@@ -33,10 +33,12 @@ export type PracticePhase =
   | 'complete'
   | 'history'
 
-// ─── App ──────────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const VERTICAL_KEYS: VerticalKey[]       = ['anxiety', 'depression', 'altered-perception']
 const COMPLEXITY_POOL: ComplexityLevel[] = ['Intermediate', 'Advanced']
+
+// ─── State ────────────────────────────────────────────────────────────────────
 
 interface SessionState {
   phase: PracticePhase
@@ -64,22 +66,17 @@ const initialState: SessionState = {
 
 function sessionReducer(state: SessionState, action: SessionAction): SessionState {
   switch (action.type) {
-    case 'reset':
-      return initialState
-    case 'setPhase':
-      return { ...state, phase: action.phase }
-    case 'setScenarioSelection':
-      return { ...state, scenarioSelection: action.selection }
-    case 'setInstinctText':
-      return { ...state, instinctText: action.text }
-    case 'setSelectedResponseType':
-      return { ...state, selectedResponseType: action.responseType }
-    case 'setInstinctAnalysis':
-      return { ...state, instinctAnalysis: action.analysis }
-    default:
-      return state
+    case 'reset':               return initialState
+    case 'setPhase':            return { ...state, phase: action.phase }
+    case 'setScenarioSelection':return { ...state, scenarioSelection: action.selection }
+    case 'setInstinctText':     return { ...state, instinctText: action.text }
+    case 'setSelectedResponseType': return { ...state, selectedResponseType: action.responseType }
+    case 'setInstinctAnalysis': return { ...state, instinctAnalysis: action.analysis }
+    default:                    return state
   }
 }
+
+// ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [state, dispatch] = useReducer(sessionReducer, initialState)
@@ -107,21 +104,47 @@ export default function App() {
     goToPhase('phase2')
   }, [instinctText, goToPhase])
 
+  const handleScenarioBegin = useCallback(
+    (selection: ScenarioSelectionState) => {
+      const resolved: ScenarioSelectionState =
+        selection.mode === 'random'
+          ? {
+              ...selection,
+              vertical:   VERTICAL_KEYS[Math.floor(Math.random() * VERTICAL_KEYS.length)],
+              complexity: COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)],
+            }
+          : selection
+
+      dispatch({ type: 'setScenarioSelection', selection: resolved })
+      goToPhase('phase1')
+    },
+    [goToPhase],
+  )
+
+  const handleResponseTypeSelect = useCallback(
+    (type: ResponseType) => {
+      dispatch({ type: 'setSelectedResponseType', responseType: type })
+      goToPhase('phase3')
+    },
+    [goToPhase],
+  )
+
   const { activeScenario, verticalKey, verticalLabel } = useMemo(() => {
-    const vKey = scenarioSelection?.vertical ?? 'depression'
-    const cLevel = scenarioSelection?.complexity ?? 'Intermediate'
+    const vKey        = scenarioSelection?.vertical   ?? 'depression'
+    const cLevel      = scenarioSelection?.complexity ?? 'Intermediate'
     const complexityKey: 'intermediate' | 'advanced' =
       cLevel === 'Advanced' || cLevel === 'Master' ? 'advanced' : 'intermediate'
 
     const category = SCENARIOS[vKey] ?? SCENARIOS['depression']
     return {
       activeScenario: category[complexityKey] ?? category['intermediate'],
-      verticalKey: vKey,
-      verticalLabel: VERTICAL_LABELS[vKey] ?? 'General Practice',
+      verticalKey:    vKey,
+      verticalLabel:  VERTICAL_LABELS[vKey] ?? 'General Practice',
     }
   }, [scenarioSelection])
 
-  const activeResponseType: ResponseType = selectedResponseType ?? 'partial'
+  const activeResponseType = selectedResponseType ?? 'partial' satisfies ResponseType
+
   const selectedResponseTier = useMemo(
     () => activeScenario.responses[RESPONSE_TIER_MAP[activeResponseType]],
     [activeScenario, activeResponseType],
@@ -138,15 +161,7 @@ export default function App() {
       {phase === 'scenario-selection' && (
         <ScenarioSelection
           onReturnToHome={handleReset}
-          onBegin={(selection) => {
-            const finalSelection = { ...selection }
-            if (selection.mode === 'random') {
-              finalSelection.vertical = VERTICAL_KEYS[Math.floor(Math.random() * VERTICAL_KEYS.length)]
-              finalSelection.complexity = COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)]
-            }
-            dispatch({ type: 'setScenarioSelection', selection: finalSelection })
-            goToPhase('phase1')
-          }}
+          onBegin={handleScenarioBegin}
         />
       )}
 
@@ -165,10 +180,7 @@ export default function App() {
           scenario={activeScenario}
           instinctText={instinctText}
           instinctAnalysis={instinctAnalysis ?? undefined}
-          onResponseTypeSelect={(type) => {
-            dispatch({ type: 'setSelectedResponseType', responseType: type })
-            goToPhase('phase3')
-          }}
+          onResponseTypeSelect={handleResponseTypeSelect}
           onReturnToHome={handleReset}
         />
       )}
