@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import PhaseIndicator from '../components/PhaseIndicator'
@@ -14,7 +14,7 @@ import { BlindArt, TierArt, RarityPips } from '../components/ArtZones'
 // Types
 // ---------------------------------------------------------------------------
 
-interface InstinctAnalysis {
+export interface InstinctAnalysis {
   primaryType: ResponseType
   confidence: 'high' | 'moderate' | 'low'
   keywords: string[]
@@ -29,7 +29,7 @@ interface Phase2ResponseProps {
 }
 
 // ---------------------------------------------------------------------------
-// Shared style constants
+// Design tokens
 // ---------------------------------------------------------------------------
 
 const FONT_LABEL: React.CSSProperties = {
@@ -45,6 +45,7 @@ const FONT_QUOTE: React.CSSProperties = {
   fontStyle: 'italic',
 }
 
+// Inset border overlay — applied as an absolute child so it never clips content
 const INNER_FRAME: React.CSSProperties = {
   position: 'absolute',
   inset: 5,
@@ -54,38 +55,43 @@ const INNER_FRAME: React.CSSProperties = {
   zIndex: 2,
 }
 
-// ---------------------------------------------------------------------------
-// BlindCardItem — Stage 1, text visible, tier hidden
-// ---------------------------------------------------------------------------
-
-/** Tilt direction: card 1 tilts right, card 2 is straight, card 3 tilts left */
-function tiltForCard(n: number) {
-  if (n === 1) return 0.6
-  if (n === 3) return -0.6
-  return 0
+// Framer variants shared across cards
+const CARD_HOVER = {
+  y: -10,
+  scale: 1.08,
+  zIndex: 50,
+  transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const },
 }
 
-function BlindCardItem({
-  responseText,
-  cardNumber,
-  onClick,
-  delay,
-}: {
+// ---------------------------------------------------------------------------
+// BlindCardItem — Stage 1: text visible, tier identity hidden
+// ---------------------------------------------------------------------------
+
+/** Subtle tilt: card 1 right, card 2 neutral, card 3 left */
+const TILT_BY_INDEX = [0.6, 0, -0.6] as const
+
+interface BlindCardItemProps {
   responseText: string
-  cardNumber: number
+  cardIndex: number   // 0-based
   onClick: () => void
   delay: number
-}) {
+}
+
+const BlindCardItem = memo(function BlindCardItem({
+  responseText,
+  cardIndex,
+  onClick,
+  delay,
+}: BlindCardItemProps) {
+  const tilt = TILT_BY_INDEX[cardIndex] ?? 0
+  const cardNumber = cardIndex + 1
+
   return (
     <motion.button
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{
-        y: -10,
-        rotate: tiltForCard(cardNumber),
-        transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-      }}
+      whileHover={{ ...CARD_HOVER, rotate: tilt }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       type="button"
@@ -147,7 +153,7 @@ function BlindCardItem({
           RESPONSE
         </div>
 
-        {/* Card number watermark */}
+        {/* Card-number watermark */}
         <div
           aria-hidden="true"
           style={{
@@ -191,7 +197,14 @@ function BlindCardItem({
         </div>
 
         {/* Divider */}
-        <div style={{ height: 1, marginInline: 10, backgroundColor: 'rgba(242,237,223,0.08)', flexShrink: 0 }} />
+        <div
+          style={{
+            height: 1,
+            marginInline: 10,
+            backgroundColor: 'rgba(242,237,223,0.08)',
+            flexShrink: 0,
+          }}
+        />
 
         {/* Text body */}
         <div
@@ -246,13 +259,19 @@ function BlindCardItem({
       </div>
     </motion.button>
   )
-}
+})
 
 // ---------------------------------------------------------------------------
-// SelectedTierCard — Stage 2, full reveal
+// SelectedTierCard — Stage 2: full expanded reveal
 // ---------------------------------------------------------------------------
 
-function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: ScenarioData }) {
+const SelectedTierCard = memo(function SelectedTierCard({
+  tierKey,
+  scenario,
+}: {
+  tierKey: TierKey
+  scenario: ScenarioData
+}) {
   const [mechanismOpen, setMechanismOpen] = useState(false)
   const style = TIER_STYLES[tierKey]
   const data = scenario.responses[tierKey]
@@ -263,12 +282,19 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
         borderRadius: 16,
         border: `1px solid ${style.accentColor}60`,
         backgroundColor: '#262320',
-        boxShadow: `0 0 0 1px ${style.accentColor}18, 0 32px 80px rgba(0,0,0,0.85), 0 10px 24px rgba(0,0,0,0.55)`,
+        boxShadow: [
+          `0 0 0 1px ${style.accentColor}18`,
+          '0 32px 80px rgba(0,0,0,0.85)',
+          '0 10px 24px rgba(0,0,0,0.55)',
+        ].join(', '),
         overflow: 'hidden',
         position: 'relative',
       }}
     >
-      <div aria-hidden="true" style={{ ...INNER_FRAME, borderRadius: 12, border: `0.5px solid ${style.accentColor}18` }} />
+      <div
+        aria-hidden="true"
+        style={{ ...INNER_FRAME, borderRadius: 12, border: `0.5px solid ${style.accentColor}18` }}
+      />
 
       {/* Art zone */}
       <div style={{ position: 'relative', height: 160, overflow: 'hidden', backgroundColor: '#121010' }}>
@@ -276,13 +302,19 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
         <div
           aria-hidden="true"
           style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 60,
             background: 'linear-gradient(to top, #1C1A18, transparent)',
           }}
         />
         <div
           style={{
-            position: 'absolute', top: 10, right: 10,
+            position: 'absolute',
+            top: 10,
+            right: 10,
             ...FONT_LABEL,
             color: style.accentColor,
             backgroundColor: style.tagBg,
@@ -299,10 +331,26 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
 
       {/* Name banner */}
       <div style={{ padding: '12px 18px 10px', borderBottom: `0.5px solid ${style.accentColor}20` }}>
-        <div style={{ ...FONT_LABEL, fontSize: 9, letterSpacing: '0.18em', color: style.accentColor, marginBottom: 3 }}>
+        <div
+          style={{
+            ...FONT_LABEL,
+            fontSize: 9,
+            letterSpacing: '0.18em',
+            color: style.accentColor,
+            marginBottom: 3,
+          }}
+        >
           {data.label}
         </div>
-        <div style={{ ...FONT_LABEL, fontSize: 8, letterSpacing: '0.12em', color: style.accentColor, opacity: 0.55 }}>
+        <div
+          style={{
+            ...FONT_LABEL,
+            fontSize: 8,
+            letterSpacing: '0.12em',
+            color: style.accentColor,
+            opacity: 0.55,
+          }}
+        >
           {data.sublabel}
         </div>
       </div>
@@ -315,27 +363,45 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
           borderBottom: `0.5px solid ${style.accentColor}15`,
         }}
       >
-        <blockquote style={{ ...FONT_QUOTE, fontSize: 19, lineHeight: 1.8, color: 'rgba(242,237,223,0.9)', margin: 0 }}>
+        <blockquote
+          style={{
+            ...FONT_QUOTE,
+            fontSize: 19,
+            lineHeight: 1.8,
+            color: 'rgba(242,237,223,0.9)',
+            margin: 0,
+          }}
+        >
           &ldquo;{data.text}&rdquo;
         </blockquote>
       </div>
 
-      {/* Mechanism toggle */}
+      {/* Mechanism accordion */}
       <div style={{ padding: '12px 18px' }}>
         <button
           onClick={() => setMechanismOpen((p) => !p)}
           type="button"
           aria-expanded={mechanismOpen}
           style={{
-            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 0,
           }}
         >
-          <span style={{ ...FONT_LABEL, fontSize: 8, color: style.accentColor }}>{data.mechanism}</span>
+          <span style={{ ...FONT_LABEL, fontSize: 8, color: style.accentColor }}>
+            {data.mechanism}
+          </span>
           <span
             aria-hidden="true"
             style={{
-              color: style.accentColor, fontSize: 11, fontFamily: 'DM Sans, Arial, sans-serif',
+              color: style.accentColor,
+              fontSize: 11,
+              fontFamily: 'DM Sans, Arial, sans-serif',
               display: 'inline-block',
               transition: 'transform 0.2s',
               transform: mechanismOpen ? 'rotate(180deg)' : 'none',
@@ -345,7 +411,7 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
           </span>
         </button>
 
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {mechanismOpen && (
             <motion.p
               key="clinical-note"
@@ -355,8 +421,11 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
               transition={{ duration: 0.25 }}
               style={{
                 fontFamily: 'DM Sans, Arial, sans-serif',
-                fontSize: 13, lineHeight: 1.65,
-                color: '#9A9488', margin: '10px 0 0', overflow: 'hidden',
+                fontSize: 13,
+                lineHeight: 1.65,
+                color: '#9A9488',
+                margin: '10px 0 0',
+                overflow: 'hidden',
               }}
             >
               {data.clinicalNote}
@@ -370,13 +439,18 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
         style={{
           padding: '8px 18px 10px',
           borderTop: `0.5px solid ${style.accentColor}15`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
         <span
           style={{
-            ...FONT_LABEL, fontSize: 7,
-            color: style.accentColor, backgroundColor: style.tagBg, padding: '3px 8px',
+            ...FONT_LABEL,
+            fontSize: 7,
+            color: style.accentColor,
+            backgroundColor: style.tagBg,
+            padding: '3px 8px',
           }}
         >
           {style.effectiveness}
@@ -385,13 +459,13 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
       </div>
     </article>
   )
-}
+})
 
 // ---------------------------------------------------------------------------
 // ContrastCard — Stage 2 comparison grid, compact
 // ---------------------------------------------------------------------------
 
-function ContrastCard({
+const ContrastCard = memo(function ContrastCard({
   tierKey,
   scenario,
   isSelected,
@@ -402,14 +476,15 @@ function ContrastCard({
 }) {
   const style = TIER_STYLES[tierKey]
   const data = scenario.responses[tierKey]
-  const dimColor = (alpha: string) => `rgba(242,237,223,${alpha})`
+  const dim = (alpha: string) => `rgba(242,237,223,${alpha})`
 
   return (
     <article
-      aria-pressed={isSelected}
       style={{
         borderRadius: 16,
-        border: isSelected ? `1px solid ${style.accentColor}60` : `1px solid ${dimColor('0.14')}`,
+        border: isSelected
+          ? `1px solid ${style.accentColor}60`
+          : `1px solid ${dim('0.14')}`,
         backgroundColor: isSelected ? '#262320' : '#1E1C19',
         boxShadow: isSelected ? '0 16px 40px rgba(0,0,0,0.65)' : 'none',
         overflow: 'hidden',
@@ -419,14 +494,17 @@ function ContrastCard({
       }}
     >
       {/* Art zone */}
-      <div style={{ position: 'relative', height: 90, overflow: 'hidden', backgroundColor: '#111010' }}>
+      <div
+        style={{ position: 'relative', height: 90, overflow: 'hidden', backgroundColor: '#111010' }}
+      >
         {isSelected ? (
           <TierArt tier={tierKey} />
         ) : (
           <div
             aria-hidden="true"
             style={{
-              position: 'absolute', inset: 0,
+              position: 'absolute',
+              inset: 0,
               backgroundImage:
                 'repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(61,107,101,0.05) 11px, rgba(61,107,101,0.05) 12px)',
             }}
@@ -435,7 +513,11 @@ function ContrastCard({
         <div
           aria-hidden="true"
           style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: 30,
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 30,
             background: `linear-gradient(to top, ${isSelected ? '#1C1A18' : '#171512'}, transparent)`,
           }}
         />
@@ -443,29 +525,43 @@ function ContrastCard({
           <div
             aria-hidden="true"
             style={{
-              position: 'absolute', top: 7, right: 7,
-              width: 6, height: 6, borderRadius: '50%', backgroundColor: style.accentColor,
+              position: 'absolute',
+              top: 7,
+              right: 7,
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              backgroundColor: style.accentColor,
             }}
           />
         )}
       </div>
 
-      {isSelected && <div style={{ height: 0.5, backgroundColor: style.accentColor, opacity: 0.4 }} />}
+      {isSelected && (
+        <div style={{ height: 0.5, backgroundColor: style.accentColor, opacity: 0.4 }} />
+      )}
 
       {/* Content */}
       <div style={{ padding: '10px 13px' }}>
         <div
           style={{
-            ...FONT_LABEL, fontSize: 8, letterSpacing: '0.14em',
-            color: isSelected ? style.accentColor : dimColor('0.28'), marginBottom: 2,
+            ...FONT_LABEL,
+            fontSize: 8,
+            letterSpacing: '0.14em',
+            color: isSelected ? style.accentColor : dim('0.28'),
+            marginBottom: 2,
           }}
         >
           {data.label}
         </div>
         <div
           style={{
-            ...FONT_LABEL, fontSize: 7, letterSpacing: '0.10em',
-            color: isSelected ? style.accentColor : dimColor('0.18'), opacity: 0.7, marginBottom: 9,
+            ...FONT_LABEL,
+            fontSize: 7,
+            letterSpacing: '0.10em',
+            color: isSelected ? style.accentColor : dim('0.18'),
+            opacity: 0.7,
+            marginBottom: 9,
           }}
         >
           {data.sublabel}
@@ -473,8 +569,9 @@ function ContrastCard({
         <blockquote
           style={{
             ...FONT_QUOTE,
-            fontSize: 13, lineHeight: 1.65,
-            color: isSelected ? dimColor('0.88') : dimColor('0.38'),
+            fontSize: 13,
+            lineHeight: 1.65,
+            color: isSelected ? dim('0.88') : dim('0.38'),
             margin: '0 0 10px',
             overflow: 'hidden',
             display: '-webkit-box' as React.CSSProperties['display'],
@@ -490,14 +587,20 @@ function ContrastCard({
       <div
         style={{
           padding: '6px 13px 9px',
-          borderTop: isSelected ? `0.5px solid ${style.accentColor}18` : `0.5px solid ${dimColor('0.06')}`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderTop: isSelected
+            ? `0.5px solid ${style.accentColor}18`
+            : `0.5px solid ${dim('0.06')}`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
         }}
       >
         <span
           style={{
-            ...FONT_LABEL, fontSize: 7, letterSpacing: '0.10em',
-            color: isSelected ? style.accentColor : dimColor('0.22'),
+            ...FONT_LABEL,
+            fontSize: 7,
+            letterSpacing: '0.10em',
+            color: isSelected ? style.accentColor : dim('0.22'),
             backgroundColor: isSelected ? style.tagBg : 'rgba(242,237,223,0.03)',
             padding: '2px 6px',
           }}
@@ -508,13 +611,13 @@ function ContrastCard({
       </div>
     </article>
   )
-}
+})
 
 // ---------------------------------------------------------------------------
-// InstinctAside
+// InstinctAside — displays the Phase 1 instinct response
 // ---------------------------------------------------------------------------
 
-function InstinctAside({
+const InstinctAside = memo(function InstinctAside({
   instinctText,
   instinctAnalysis,
   selectedTier,
@@ -526,15 +629,18 @@ function InstinctAside({
   return (
     <aside
       className="max-w-[900px] mx-auto"
-      style={{ borderLeft: '3px solid rgba(154,148,136,0.3)', backgroundColor: 'rgba(154,148,136,0.04)' }}
+      style={{
+        borderLeft: '3px solid rgba(154,148,136,0.3)',
+        backgroundColor: 'rgba(154,148,136,0.04)',
+      }}
     >
       <div className="p-6">
         <span className="label-text text-drift block mb-3">YOUR PHASE 01 INSTINCT</span>
+
         <blockquote className="font-cormorant italic text-base text-parchment/60 leading-relaxed">
           &ldquo;{instinctText || 'No response recorded.'}&rdquo;
         </blockquote>
 
-        {/* Keyword chips — shown when analysis is available */}
         {instinctAnalysis && instinctAnalysis.keywords.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2" aria-label="Detected keywords">
             {instinctAnalysis.keywords.map((kw) => (
@@ -556,10 +662,194 @@ function InstinctAside({
       </div>
     </aside>
   )
+})
+
+// ---------------------------------------------------------------------------
+// Stage 1 — Blind selection view
+// ---------------------------------------------------------------------------
+
+function BlindSelectionStage({
+  scenario,
+  instinctText,
+  instinctAnalysis,
+  onSelect,
+}: {
+  scenario: ScenarioData
+  instinctText: string
+  instinctAnalysis?: InstinctAnalysis
+  onSelect: (tier: TierKey) => void
+}) {
+  return (
+    <motion.div
+      key="blind-selection"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={fadeUpTransition()}
+        className="mb-12"
+      >
+        <span className="label-text text-ember block mb-4">PHASE 02 · STRATEGIC CHOICE</span>
+        <h2 className="font-cormorant font-medium text-parchment text-3xl md:text-4xl mb-3 leading-tight">
+          Which response feels most validating?
+        </h2>
+        <p className="font-dm text-sm text-drift max-w-xl leading-relaxed">
+          Read each response carefully. Trust your clinical instinct. Select the one you would use
+          in this moment.
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 items-start">
+        {TIERS.map((key, idx) => (
+          <BlindCardItem
+            key={key}
+            responseText={scenario.responses[key].text}
+            cardIndex={idx}
+            onClick={() => onSelect(key)}
+            delay={0.2 + idx * 0.14}
+          />
+        ))}
+      </div>
+
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={fadeUpTransition(0.75)}
+        className="mt-12"
+      >
+        <InstinctAside
+          instinctText={instinctText}
+          instinctAnalysis={instinctAnalysis}
+          selectedTier={null}
+        />
+      </motion.div>
+    </motion.div>
+  )
 }
 
 // ---------------------------------------------------------------------------
-// Main component
+// Stage 2 — Reveal & clinical analysis view
+// ---------------------------------------------------------------------------
+
+const REVEAL_VARIANTS = {
+  card:    { initial: { opacity: 0, scale: 0.95 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, delay: 0.1 } },
+  grid:    { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.2 } },
+  instinct:{ initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.3 } },
+  actions: { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.4 } },
+}
+
+function RevealAnalysisStage({
+  scenario,
+  instinctText,
+  instinctAnalysis,
+  selectedTier,
+  onReconsider,
+  onConfirm,
+}: {
+  scenario: ScenarioData
+  instinctText: string
+  instinctAnalysis?: InstinctAnalysis
+  selectedTier: TierKey
+  onReconsider: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <motion.div
+      key="reveal-analysis"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        transition={fadeUpTransition()}
+        className="mb-12"
+      >
+        <span className="label-text text-ember block mb-4">PHASE 02 · CLINICAL ANALYSIS</span>
+        <h2 className="font-cormorant font-medium text-parchment text-3xl md:text-4xl mb-3 leading-tight">
+          Your selection & why it matters.
+        </h2>
+        <p className="font-dm text-sm text-drift max-w-xl leading-relaxed">
+          Here&rsquo;s the mechanism behind your choice and what makes it effective — or where we
+          need to refine.
+        </p>
+      </motion.div>
+
+      {/* Expanded selected card */}
+      <motion.div
+        {...REVEAL_VARIANTS.card}
+        className="mb-10 max-w-2xl mx-auto"
+      >
+        <SelectedTierCard tierKey={selectedTier} scenario={scenario} />
+      </motion.div>
+
+      {/* Contrast grid */}
+      <motion.div
+        {...REVEAL_VARIANTS.grid}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 max-w-5xl mx-auto"
+      >
+        {TIERS.map((key) => (
+          <ContrastCard
+            key={key}
+            tierKey={key}
+            scenario={scenario}
+            isSelected={key === selectedTier}
+          />
+        ))}
+      </motion.div>
+
+      {/* Instinct reference */}
+      <motion.div {...REVEAL_VARIANTS.instinct} className="mb-10">
+        <InstinctAside
+          instinctText={instinctText}
+          instinctAnalysis={instinctAnalysis}
+          selectedTier={selectedTier}
+        />
+      </motion.div>
+
+      {/* Actions */}
+      <motion.div
+        {...REVEAL_VARIANTS.actions}
+        className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto"
+      >
+        <button
+          onClick={onReconsider}
+          type="button"
+          data-cursor-hover
+          className="inline-flex items-center justify-center gap-2 bg-ground text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 border border-parchment/20 transition-all duration-200 hover:border-parchment/40 active:scale-[0.98]"
+        >
+          ← RECONSIDER
+        </button>
+        <button
+          onClick={onConfirm}
+          type="button"
+          data-cursor-hover
+          className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+        >
+          CONFIRM & REFLECT
+          <span
+            aria-hidden="true"
+            className="transition-transform duration-200 group-hover:translate-x-1.5"
+          >
+            →
+          </span>
+        </button>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Root component
 // ---------------------------------------------------------------------------
 
 export default function Phase2Response({
@@ -571,20 +861,20 @@ export default function Phase2Response({
 }: Phase2ResponseProps) {
   const [selectedTier, setSelectedTier] = useState<TierKey | null>(null)
 
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (selectedTier) onResponseTypeSelect(TIER_STYLES[selectedTier].responseType)
-  }
+  }, [selectedTier, onResponseTypeSelect])
 
-  const handleHomeClick = () => {
+  const handleReconsider = useCallback(() => setSelectedTier(null), [])
+
+  const handleHomeClick = useCallback(() => {
     if (
       onReturnToHome &&
-      window.confirm(
-        'Exit this practice session? Your progress will not be saved.',
-      )
+      window.confirm('Exit this practice session? Your progress will not be saved.')
     ) {
       onReturnToHome()
     }
-  }
+  }, [onReturnToHome])
 
   return (
     <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
@@ -598,164 +888,23 @@ export default function Phase2Response({
 
       <div className="relative z-[10] max-w-[1200px] mx-auto px-6 md:px-10 pb-16">
         <AnimatePresence mode="wait">
-
-          {/* ----------------------------------------------------------------
-              STAGE 1 — BLIND SELECTION
-          ---------------------------------------------------------------- */}
           {!selectedTier ? (
-            <motion.div
-              key="blind-selection"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={fadeUpTransition()}
-                className="mb-12"
-              >
-                <span className="label-text text-ember block mb-4">PHASE 02 · STRATEGIC CHOICE</span>
-                <h2 className="font-cormorant font-medium text-parchment text-3xl md:text-4xl mb-3 leading-tight">
-                  Which response feels most validating?
-                </h2>
-                <p className="font-dm text-sm text-drift max-w-xl leading-relaxed">
-                  Read each response carefully. Trust your clinical instinct. Select the one you would
-                  use in this moment.
-                </p>
-              </motion.div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 items-start">
-                {TIERS.map((key, idx) => (
-                  <BlindCardItem
-                    key={key}
-                    responseText={scenario.responses[key].text}
-                    cardNumber={idx + 1}
-                    onClick={() => setSelectedTier(key)}
-                    delay={0.2 + idx * 0.14}
-                  />
-                ))}
-              </div>
-
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={fadeUpTransition(0.75)}
-                className="mt-12"
-              >
-                <InstinctAside
-                  instinctText={instinctText}
-                  instinctAnalysis={instinctAnalysis}
-                  selectedTier={null}
-                />
-              </motion.div>
-            </motion.div>
-
+            <BlindSelectionStage
+              scenario={scenario}
+              instinctText={instinctText}
+              instinctAnalysis={instinctAnalysis}
+              onSelect={setSelectedTier}
+            />
           ) : (
-          /* ----------------------------------------------------------------
-              STAGE 2 — REVEAL & CLINICAL ANALYSIS
-          ---------------------------------------------------------------- */
-            <motion.div
-              key="reveal-analysis"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <motion.div
-                variants={fadeUp}
-                initial="hidden"
-                animate="visible"
-                transition={fadeUpTransition()}
-                className="mb-12"
-              >
-                <span className="label-text text-ember block mb-4">PHASE 02 · CLINICAL ANALYSIS</span>
-                <h2 className="font-cormorant font-medium text-parchment text-3xl md:text-4xl mb-3 leading-tight">
-                  Your selection & why it matters.
-                </h2>
-                <p className="font-dm text-sm text-drift max-w-xl leading-relaxed">
-                  Here's the mechanism behind your choice and what makes it effective — or where we
-                  need to refine.
-                </p>
-              </motion.div>
-
-              {/* Selected card — expanded */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4, delay: 0.1 }}
-                className="mb-10 max-w-2xl mx-auto"
-              >
-                <SelectedTierCard tierKey={selectedTier} scenario={scenario} />
-              </motion.div>
-
-              {/* Contrast grid */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.2 }}
-                className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 max-w-5xl mx-auto"
-              >
-                {TIERS.map((key) => (
-                  <ContrastCard
-                    key={key}
-                    tierKey={key}
-                    scenario={scenario}
-                    isSelected={key === selectedTier}
-                  />
-                ))}
-              </motion.div>
-
-              {/* Instinct reference */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.3 }}
-                className="mb-10"
-              >
-                <InstinctAside
-                  instinctText={instinctText}
-                  instinctAnalysis={instinctAnalysis}
-                  selectedTier={selectedTier}
-                />
-              </motion.div>
-
-              {/* Actions */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto"
-              >
-                <button
-                  onClick={() => setSelectedTier(null)}
-                  data-cursor-hover
-                  type="button"
-                  className="inline-flex items-center justify-center gap-2 bg-ground text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 border border-parchment/20 transition-all duration-200 hover:border-parchment/40 active:scale-[0.98]"
-                >
-                  ← RECONSIDER
-                </button>
-                <button
-                  onClick={handleConfirm}
-                  data-cursor-hover
-                  type="button"
-                  className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
-                >
-                  CONFIRM & REFLECT
-                  <span
-                    aria-hidden="true"
-                    className="transition-transform duration-200 group-hover:translate-x-1.5"
-                  >
-                    →
-                  </span>
-                </button>
-              </motion.div>
-            </motion.div>
+            <RevealAnalysisStage
+              scenario={scenario}
+              instinctText={instinctText}
+              instinctAnalysis={instinctAnalysis}
+              selectedTier={selectedTier}
+              onReconsider={handleReconsider}
+              onConfirm={handleConfirm}
+            />
           )}
-
         </AnimatePresence>
       </div>
     </section>
