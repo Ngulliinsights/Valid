@@ -1,6 +1,7 @@
 {
   "version": "0.2",
   "language": "en",
+  "locale": "en-GB",
   "words": [
     "cmdk",
     "vaul",
@@ -12,7 +13,11 @@
     "postcss",
     "tailwindcss",
     "Vite",
-    "resolvers"
+    "resolvers",
+    "catastrophising",
+    "materialised",
+    "Comorbid",
+    "practise"
   ],
   "ignoreWords": [],
   "import": []

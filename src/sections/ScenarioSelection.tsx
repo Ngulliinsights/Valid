@@ -183,7 +183,7 @@ function VerticalDropdown({
         data-cursor-hover
         type="button"
         aria-haspopup="listbox"
-        aria-expanded={isOpen ? 'true' : 'false'}
+        aria-expanded={`${isOpen}`}
         aria-labelledby={`${labelId} ${triggerId}`}
         className={`w-full text-left p-4 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember vertical-dropdown-trigger ${isOpen ? 'vertical-dropdown-trigger-open' : ''}`}
       >
@@ -240,7 +240,7 @@ function VerticalDropdown({
                     <button
                       key={vertical.key}
                       role="option"
-                      aria-selected={isSelected ? 'true' : 'false'}
+                      aria-selected={`${isSelected}`}
                       onClick={() => {
                         onSelect(isSelected ? null : vertical.key)
                         close()
