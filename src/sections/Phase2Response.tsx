@@ -651,12 +651,6 @@ function BlindSelectionStage({
   instinctAnalysis?: InstinctAnalysis
   onSelect: (tier: TierKey) => void
 }) {
-  /**
-   * Shuffle once on mount — empty deps are intentional.
-   * `fisherYatesShuffle` is pure and referentially stable so no lint warning needed.
-   * TIERS is a module-level constant so this never re-shuffles on parent re-renders.
-   */
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const shuffledTiers = useMemo(() => fisherYatesShuffle(TIERS), [])
 
   return (
