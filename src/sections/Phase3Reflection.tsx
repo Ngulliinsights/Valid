@@ -59,7 +59,7 @@ export default function Phase3Reflection({ scenario, onContinue, onReturnToHome 
             initial="hidden"
             animate="visible"
             transition={fadeUpTransition(0.2)}
-            className="bg-teal-950/15 border border-tide/40 p-8 space-y-4 rounded-2xl"
+            className="bg-tide/10 border border-tide/55 p-8 space-y-4 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
           >
             <p className="label-text text-tide">REFLECTION QUESTION</p>
             <blockquote className="font-cormorant italic text-parchment text-xl leading-relaxed">

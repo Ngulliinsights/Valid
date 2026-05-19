@@ -244,7 +244,7 @@ export default function Phase1Diagnostic({
               <motion.div
                 role="region"
                 aria-label={isFlipped ? 'Card back' : 'Scenario card'}
-                className="relative bg-parchment shadow-[0_12px_40px_rgba(0,0,0,0.5)] rounded-2xl"
+                className="relative bg-parchment shadow-[0_24px_70px_rgba(0,0,0,0.75)] rounded-2xl"
                 style={{ minHeight: 480, transformStyle: 'preserve-3d' }}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
                 transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
@@ -307,7 +307,7 @@ export default function Phase1Diagnostic({
               <p className="font-dm text-xs text-drift/40 mb-3 leading-relaxed">
                 Write exactly what you would say to this patient in the next 60 seconds. Unfiltered.
               </p>
-              <div className="relative rounded-xl overflow-hidden border border-drift/15">
+              <div className="relative rounded-xl overflow-hidden border border-drift/30 shadow-[0_12px_32px_rgba(0,0,0,0.45)]">
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-ember/50" aria-hidden="true" />
                 <textarea
                   id="instinct-input"
@@ -317,7 +317,7 @@ export default function Phase1Diagnostic({
                   className="w-full min-h-[160px] p-5 font-cormorant italic text-lg text-parchment placeholder:text-drift/35 resize-none focus:ring-1 focus:ring-ember/30 transition-all duration-200"
                   style={{
                     outline: 'none',
-                    backgroundColor: 'rgba(196, 136, 42, 0.04)',
+                    backgroundColor: '#23211E',
                     border: 'none',
                   }}
                 />
@@ -333,10 +333,10 @@ export default function Phase1Diagnostic({
 
             {/* Clinical reminder */}
             <div
-              className="p-4 rounded-xl"
+              className="p-4 rounded-xl border border-tide/30"
               style={{
-                backgroundColor: 'rgba(61, 107, 101, 0.06)',
-                borderLeft: '3px solid rgba(61, 107, 101, 0.35)',
+                backgroundColor: 'rgba(61, 107, 101, 0.12)',
+                borderLeft: '3px solid rgba(61, 107, 101, 0.55)',
               }}
             >
               <span className="label-text text-tide/70 block mb-2">REMINDER</span>

@@ -121,9 +121,9 @@ function BlindCardItem({
       <div
         style={{
           borderRadius: 16,
-          border: '1px solid rgba(242,237,223,0.15)',
-          backgroundColor: '#1C1A18',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)',
+          border: '1px solid rgba(242,237,223,0.22)',
+          backgroundColor: '#23211E',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.7), 0 6px 16px rgba(0,0,0,0.5)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -261,9 +261,9 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
     <article
       style={{
         borderRadius: 16,
-        border: `1px solid ${style.accentColor}45`,
-        backgroundColor: '#1C1A18',
-        boxShadow: `0 0 0 1px ${style.accentColor}10, 0 20px 60px rgba(0,0,0,0.75), 0 6px 16px rgba(0,0,0,0.4)`,
+        border: `1px solid ${style.accentColor}60`,
+        backgroundColor: '#262320',
+        boxShadow: `0 0 0 1px ${style.accentColor}18, 0 32px 80px rgba(0,0,0,0.85), 0 10px 24px rgba(0,0,0,0.55)`,
         overflow: 'hidden',
         position: 'relative',
       }}
@@ -409,9 +409,9 @@ function ContrastCard({
       aria-pressed={isSelected}
       style={{
         borderRadius: 16,
-        border: isSelected ? `1px solid ${style.accentColor}45` : `1px solid ${dimColor('0.07')}`,
-        backgroundColor: isSelected ? '#1C1A18' : '#171512',
-        boxShadow: isSelected ? '0 8px 24px rgba(0,0,0,0.5)' : 'none',
+        border: isSelected ? `1px solid ${style.accentColor}60` : `1px solid ${dimColor('0.14')}`,
+        backgroundColor: isSelected ? '#262320' : '#1E1C19',
+        boxShadow: isSelected ? '0 16px 40px rgba(0,0,0,0.65)' : 'none',
         overflow: 'hidden',
         opacity: isSelected ? 1 : 0.38,
         position: 'relative',

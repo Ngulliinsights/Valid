@@ -232,12 +232,12 @@ export default function PracticeSessionComplete({
               initial="hidden"
               animate="visible"
               transition={fadeUpTransition(0.2)}
-              className="space-y-3 bg-ground border border-drift/20 p-6 rounded-2xl"
+              className="space-y-3 bg-ground/85 border border-drift/35 p-6 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="label-text text-drift/60">YOUR INSTINCTIVE RESPONSE</span>
                 <span
-                  className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded ${BADGE_CLASSES[responseType]}`}
+                  className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded-md ${BADGE_CLASSES[responseType]}`}
                 >
                   {RESPONSE_TYPE_LABELS[responseType]}
                 </span>
@@ -251,7 +251,7 @@ export default function PracticeSessionComplete({
               initial="hidden"
               animate="visible"
               transition={fadeUpTransition(0.3)}
-              className="space-y-3 bg-teal-950/15 border border-tide/40 p-6 rounded-2xl"
+              className="space-y-3 bg-tide/12 border border-tide/50 p-6 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
             >
               <span className="label-text text-tide">VALIDATING RESPONSE</span>
               <p className="text-parchment/90 leading-relaxed italic">{selectedResponseTier.text}</p>
@@ -272,7 +272,7 @@ export default function PracticeSessionComplete({
             initial="hidden"
             animate="visible"
             transition={fadeUpTransition(0.4)}
-            className="bg-amber-950/10 border border-amber-900/30 p-6 space-y-3 rounded-2xl"
+            className="bg-amber-950/15 border border-amber-900/45 p-6 space-y-3 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
           >
             <h3 className="font-medium text-parchment uppercase tracking-wide text-sm">
               What the validating response does differently
@@ -307,7 +307,7 @@ export default function PracticeSessionComplete({
                   if (commitmentError && e.target.value.trim()) setCommitmentError(false)
                 }}
                 placeholder="E.g., 'I will acknowledge the emotional experience first, before moving to safety assessment.' or 'I will resist the urge to correct the belief and instead validate the fear beneath it.'"
-                className={`w-full bg-ground border text-parchment placeholder-drift/40 p-4 font-dm text-sm focus:outline-none focus:ring-1 resize-none h-[116px] transition-colors rounded-xl ${
+                className={`w-full bg-ground/80 border text-parchment placeholder-drift/40 p-4 font-dm text-sm focus:outline-none focus:ring-1 resize-none h-[116px] transition-colors rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.45)] ${
                   commitmentError
                     ? 'border-red-500/60 focus:border-red-400 focus:ring-red-400/30'
                     : 'border-drift/30 focus:border-ember focus:ring-ember'

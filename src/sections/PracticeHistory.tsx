@@ -160,25 +160,25 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                 transition={fadeUpTransition(0.2)}
                 className="grid md:grid-cols-4 gap-4"
               >
-                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
+                <div className="bg-ground/90 border border-drift/35 p-4 space-y-1 rounded-xl shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
                   <p className="label-text text-drift/60 text-xs">TOTAL SCENARIOS</p>
                   <p className="font-cormorant text-parchment text-2xl font-semibold">
                     {pattern.totalAttempts}
                   </p>
                 </div>
-                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
+                <div className="bg-ground/90 border border-drift/35 p-4 space-y-1 rounded-xl shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
                   <p className="label-text text-drift/60 text-xs">CE HOURS EARNED</p>
                   <p className="font-cormorant text-parchment text-2xl font-semibold">
                     {ceHours.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
+                <div className="bg-ground/90 border border-drift/35 p-4 space-y-1 rounded-xl shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
                   <p className="label-text text-drift/60 text-xs">VALIDATING RESPONSES</p>
                   <p className="font-cormorant text-tide text-2xl font-semibold">
                     {validatingRate}%
                   </p>
                 </div>
-                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
+                <div className="bg-ground/90 border border-drift/35 p-4 space-y-1 rounded-xl shadow-[0_10px_24px_rgba(0,0,0,0.45)]">
                   <p className="label-text text-drift/60 text-xs">STRONGEST AREA</p>
                   <p className="font-cormorant text-parchment text-sm font-semibold">
                     {pattern.strongestCategory ?? '—'}
@@ -192,7 +192,7 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                 initial="hidden"
                 animate="visible"
                 transition={fadeUpTransition(0.3)}
-                className="bg-ground border border-drift/20 p-6 space-y-4 rounded-2xl"
+                className="bg-ground/90 border border-drift/35 p-6 space-y-4 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
               >
                 <h3 className="font-medium text-parchment uppercase tracking-wide text-sm">
                   Response Pattern
@@ -257,7 +257,7 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                       return (
                         <div
                           key={entry.id}
-                          className="bg-ground border border-drift/20 p-4 space-y-3 rounded-xl"
+                          className="bg-ground/90 border border-drift/35 p-4 space-y-3 rounded-xl shadow-[0_12px_28px_rgba(0,0,0,0.45)]"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
