@@ -7,34 +7,38 @@
 ───────────────────────────────────────────── */
 @layer base {
   :root {
-    --background:         30 14%  9%;
-    --foreground:         40 28% 91%;
-    --card:               30 14%  9%;
-    --card-foreground:    40 28% 91%;
-    --popover:            30 14%  9%;
-    --popover-foreground: 40 28% 91%;
-    --primary:            168 28% 33%;
-    --primary-foreground:  30 14%  9%;
-    --secondary:          30 14% 15%;
-    --secondary-foreground: 40 28% 91%;
-    --muted:              30  8% 20%;
-    --muted-foreground:   36  8% 57%;
-    --accent:             168 28% 33%;
-    --accent-foreground:   30 14%  9%;
-    --destructive:           0 50% 54%;
+    --background:             30 14%  9%;
+    --foreground:             40 28% 91%;
+    --card:                   30 14%  9%;
+    --card-foreground:        40 28% 91%;
+    --popover:                30 14%  9%;
+    --popover-foreground:     40 28% 91%;
+    --primary:               168 28% 33%;
+    --primary-foreground:     30 14%  9%;
+    --secondary:              30 14% 15%;
+    --secondary-foreground:   40 28% 91%;
+    --muted:                  30  8% 20%;
+    --muted-foreground:       36  8% 57%;
+    --accent:                168 28% 33%;
+    --accent-foreground:      30 14%  9%;
+    --destructive:             0 50% 54%;
     --destructive-foreground: 40 28% 91%;
-    --border: 36  8% 57%;
-    --input:  36  8% 57%;
-    /* Focus ring → Ember */
-    --ring:  37 65% 47%;
-    --radius: 12px;
+    --border:                 36  8% 57%;
+    --input:                  36  8% 57%;
+    --ring:                   37 65% 47%;   /* Focus ring → Ember */
+    --radius:                 12px;
 
-    /* Palette RGB aliases */
+    /*
+     * RGB channel aliases for rgba() composition.
+     * Usage: rgba(var(--parchment-rgb), 0.3)
+     * NOTE: comma-separated; use rgba(), NOT rgb(var() / alpha).
+     */
     --parchment-rgb: 242, 237, 223;
     --teal-rgb:       61, 107, 101;
     --ember-rgb:     196, 136,  42;
+    --drift-rgb:     154, 148, 136;
 
-    /* Named hex tokens for JS consumption */
+    /* Named hex tokens */
     --parchment: #F2EDDF;
     --tide:      #3D6B65;
     --ember:     #C4882A;
@@ -64,6 +68,14 @@
     scroll-behavior: smooth;
     scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    /* Hide native cursor when CustomCursor is active (pointer: fine devices). */
+    cursor: none;
+  }
+
+  /* Restore default cursor on coarse/touch devices — CustomCursor is invisible there. */
+  @media (pointer: coarse) {
+    html { cursor: auto; }
   }
 
   body {
@@ -79,22 +91,22 @@
   }
 
   ::selection {
-    background-color: rgba(196, 136, 42, 0.3);
+    background-color: rgba(var(--ember-rgb), 0.3);
     color: hsl(var(--foreground));
   }
 
-  /* ── Scrollbar ─────────────────────────────── */
+  /* ── Scrollbar ───────────────────────────────── */
   ::-webkit-scrollbar        { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track  { background: transparent; }
   ::-webkit-scrollbar-thumb  {
-    background: rgba(154, 148, 136, 0.25);
+    background: rgba(var(--drift-rgb), 0.25);
     border-radius: 2px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(196, 136, 42, 0.45);
+    background: rgba(var(--ember-rgb), 0.45);
   }
 
-  /* ── Focus ──────────────────────────────────── */
+  /* ── Focus ───────────────────────────────────── */
   textarea:focus,
   input:focus,
   select:focus {
@@ -106,19 +118,20 @@
   a:focus-visible {
     outline: none;
     box-shadow:
-      0 0 0 2px #1A1814,
-      0 0 0 4px rgba(196, 136, 42, 0.65);
+      0 0 0 2px var(--ground),
+      0 0 0 4px rgba(var(--ember-rgb), 0.65);
   }
 
   /* Textarea focus — hairline ember top bar only */
   textarea:focus-visible {
     outline: none;
-    box-shadow: inset 0 2px 0 0 rgba(196, 136, 42, 0.4);
+    box-shadow: inset 0 2px 0 0 rgba(var(--ember-rgb), 0.4);
   }
 
-  /* ── Placeholder font override ──────────────── */
-  /* Textareas in Cormorant italic context must not
-     inherit the serif/italic for placeholder text */
+  /*
+   * Textareas in Cormorant italic context must not inherit
+   * the serif/italic for placeholder text.
+   */
   .font-cormorant::placeholder,
   textarea.font-cormorant::placeholder {
     font-family: 'DM Sans', Arial, sans-serif;
@@ -143,11 +156,11 @@
 ───────────────────────────────────────────── */
 @layer components {
 
-  /* ── Font helpers ────────────────────────── */
+  /* ── Font helpers ────────────────────────────── */
   .font-cormorant { font-family: 'Cormorant Garamond', Georgia, serif; }
   .font-dm        { font-family: 'DM Sans', Arial, sans-serif; }
 
-  /* ── Text roles ──────────────────────────── */
+  /* ── Text roles ──────────────────────────────── */
   .label-text {
     @apply font-dm font-medium uppercase;
     font-size:      0.625rem;
@@ -166,28 +179,28 @@
     line-height: 1.7;
   }
 
-  /* ── Surface backgrounds ─────────────────── */
-  .bg-ground  { background-color: hsl(30 12% 7%); }
-  .bg-raised  { background-color: hsl(var(--secondary)); }
+  /* ── Surface backgrounds ─────────────────────── */
+  .bg-ground { background-color: var(--ground); }
+  .bg-raised { background-color: hsl(var(--secondary)); }
 
-  /* ── Background textures ─────────────────── */
+  /* ── Background textures ─────────────────────── */
 
-  /* Rule/matrix grid — used on hero + session complete */
+  /* Rule/matrix grid — hero + session complete */
   .rule-matrix-bg {
     background-image:
       repeating-linear-gradient(
         0deg,
         transparent,
         transparent 47px,
-        rgb(var(--parchment-rgb) / 0.035) 47px,
-        rgb(var(--parchment-rgb) / 0.035) 48px
+        rgba(var(--parchment-rgb), 0.035) 47px,
+        rgba(var(--parchment-rgb), 0.035) 48px
       ),
       repeating-linear-gradient(
         90deg,
         transparent,
         transparent 47px,
-        rgb(var(--parchment-rgb) / 0.035) 47px,
-        rgb(var(--parchment-rgb) / 0.035) 48px
+        rgba(var(--parchment-rgb), 0.035) 47px,
+        rgba(var(--parchment-rgb), 0.035) 48px
       );
   }
 
@@ -197,8 +210,8 @@
       45deg,
       transparent,
       transparent 11px,
-      rgb(var(--teal-rgb) / 0.05) 11px,
-      rgb(var(--teal-rgb) / 0.05) 12px
+      rgba(var(--teal-rgb), 0.05) 11px,
+      rgba(var(--teal-rgb), 0.05) 12px
     );
   }
 
@@ -208,15 +221,15 @@
       45deg,
       transparent,
       transparent 11px,
-      rgb(var(--teal-rgb) / 0.08) 11px,
-      rgb(var(--teal-rgb) / 0.08) 12px
+      rgba(var(--teal-rgb), 0.08) 11px,
+      rgba(var(--teal-rgb), 0.08) 12px
     );
   }
 
   /*
    * Grain overlay — tactile film texture on all section surfaces.
-   * Rendered as a z-[1] ::after so it floats above the bg-color but
-   * below z-[10] content containers.
+   * Rendered as a z-[1] ::after so it floats above the bg-color
+   * but below z-[10] content containers.
    */
   .grain-overlay {
     position: relative;
@@ -234,7 +247,7 @@
     background-size: 200px 200px;
   }
 
-  /* ── Buttons ─────────────────────────────── */
+  /* ── Buttons ─────────────────────────────────── */
   .btn-ghost {
     @apply instruction-text;
     display: inline-flex;
@@ -274,14 +287,112 @@
     background: hsl(168 28% 40%);
     box-shadow: 0 0 0 1px hsl(var(--primary) / 0.4);
   }
+
+  /* ── Scenario Selection ──────────────────────── */
+  .chevron-icon {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+    stroke-width: 2;
+    stroke: currentColor;
+    transition: transform var(--duration-medium) var(--ease-standard);
+  }
+
+  .chevron-icon-open {
+    transform: rotate(180deg);
+  }
+
+  .vertical-dropdown-trigger {
+    background-color: rgba(var(--drift-rgb), 0.04);
+    border: 1px solid rgba(var(--drift-rgb), 0.12);
+    border-left: 3px solid rgba(var(--drift-rgb), 0.15);
+    border-radius: var(--radius);
+  }
+
+  .vertical-dropdown-trigger-open {
+    border: 1px solid rgba(var(--ember-rgb), 0.35);
+    border-left: 3px solid var(--ember);
+  }
+
+  .vertical-dropdown-menu {
+    background-color: var(--ground);
+    border: 1px solid rgba(var(--drift-rgb), 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .vertical-dropdown-search-input-wrapper {
+    border-bottom: 1px solid rgba(var(--drift-rgb), 0.2);
+  }
+
+  .vertical-dropdown-search-input {
+    border: 1px solid rgba(var(--drift-rgb), 0.15);
+    border-radius: 8px;
+  }
+
+  .vertical-dropdown-option {
+    background-color: rgba(var(--drift-rgb), 0.02);
+    border-bottom: 1px solid rgba(var(--drift-rgb), 0.10);
+  }
+
+  .vertical-dropdown-option-selected {
+    background-color: rgba(var(--ember-rgb), 0.10);
+  }
+
+  .vertical-dropdown-option-text-selected {
+    color: var(--parchment);
+  }
+
+  .vertical-dropdown-option-icon-bg {
+    background-color: var(--ember);
+  }
+
+  .complexity-selector-button {
+    background-color: rgba(var(--drift-rgb), 0.04);
+    border: 1px solid rgba(var(--drift-rgb), 0.12);
+    border-radius: 8px;
+  }
+
+  .complexity-selector-button-active {
+    background-color: rgba(var(--ember-rgb), 0.08);
+    border: 1px solid rgba(var(--ember-rgb), 0.35);
+  }
+
+  .complexity-selector-button-text-active {
+    color: var(--ember);
+  }
+
+  .scenario-selection-header-title {
+    font-size: clamp(28px, 4vw, 40px);
+  }
+
+  .random-scenario-button {
+    background-color: rgba(var(--drift-rgb), 0.05);
+    border: 1px solid rgba(var(--drift-rgb), 0.15);
+    border-left: 3px solid rgba(var(--drift-rgb), 0.3);
+    border-radius: var(--radius);
+  }
+
+  .complexity-selector-wrapper {
+    background-color: rgba(var(--drift-rgb), 0.03);
+    border: 1px solid rgba(var(--drift-rgb), 0.1);
+    border-radius: var(--radius);
+  }
 }
 
 /* ─────────────────────────────────────────────
    UTILITY LAYER
 ───────────────────────────────────────────── */
 @layer utilities {
-  .text-balance { text-wrap: balance; }
-  .text-pretty  { text-wrap: pretty; }
+  .text-balance {
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+  .text-pretty {
+    overflow-wrap: anywhere;
+    text-wrap: pretty;
+  }
 
   .transition-colors-fast {
     transition:
@@ -300,100 +411,4 @@
   /* Hide scrollbar on immersive sections */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-}
-
-/* ─────────────────────────────────────────────
-   SCENARIO SELECTION PAGE STYLES
-───────────────────────────────────────────── */
-@layer components {
-  .chevron-icon {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-    transition: transform 0.3s ease-in-out;
-    stroke-width: 2;
-    stroke: currentColor;
-  }
-
-  .chevron-icon-open {
-    transform: rotate(180deg);
-  }
-
-  .vertical-dropdown-trigger {
-    background-color: rgba(154,148,136,0.04);
-    border: 1px solid rgba(154,148,136,0.12);
-    border-left: 3px solid rgba(154,148,136,0.15);
-    border-radius: var(--radius);
-  }
-
-  .vertical-dropdown-trigger-open {
-    border: 1px solid rgba(196,136,42,0.35);
-    border-left: 3px solid #C4882A;
-  }
-
-  .vertical-dropdown-menu {
-    background-color: var(--color-ground, #1A1814);
-    border: 1px solid rgba(154,148,136,0.3);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  .vertical-dropdown-search-input-wrapper {
-    border-bottom: 1px solid rgba(154,148,136,0.2);
-  }
-
-  .vertical-dropdown-search-input {
-    border: 1px solid rgba(154,148,136,0.15);
-    border-radius: 8px;
-  }
-
-  .vertical-dropdown-option {
-    background-color: rgba(154,148,136,0.02);
-    border-bottom: 1px solid rgba(154,148,136,0.10);
-  }
-
-  .vertical-dropdown-option-selected {
-    background-color: rgba(196, 136, 42, 0.10);
-  }
-
-  .vertical-dropdown-option-text-selected {
-    color: #F2EDDF;
-  }
-
-  .vertical-dropdown-option-icon-bg {
-    background-color: #C4882A;
-  }
-
-  .complexity-selector-button {
-    background-color: rgba(154,148,136,0.04);
-    border: 1px solid rgba(154,148,136,0.12);
-    border-radius: 8px;
-  }
-
-  .complexity-selector-button-active {
-    background-color: rgba(196, 136, 42, 0.08);
-    border: 1px solid rgba(196,136,42,0.35);
-  }
-
-  .complexity-selector-button-text-active {
-    color: #C4882A;
-  }
-
-  .scenario-selection-header-title {
-    font-size: clamp(28px, 4vw, 40px);
-  }
-
-  .random-scenario-button {
-    background-color: rgba(154,148,136,0.05);
-    border: 1px solid rgba(154,148,136,0.15);
-    border-left: 3px solid rgba(154,148,136,0.3);
-    border-radius: var(--radius);
-  }
-
-  .complexity-selector-wrapper {
-    background-color: rgba(154,148,136,0.03);
-    border: 1px solid rgba(154,148,136,0.1);
-    border-radius: var(--radius);
-  }
 }
