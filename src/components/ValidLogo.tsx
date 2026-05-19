@@ -3,6 +3,7 @@ interface ValidLogoProps {
   color?: 'parchment' | 'tide'
   showTagline?: boolean
   tagline?: string
+  onHomeClick?: () => void
 }
 
 export default function ValidLogo({
@@ -10,6 +11,7 @@ export default function ValidLogo({
   color = 'parchment',
   showTagline = false,
   tagline = 'THERAPEUTIC CONNECTIONS · PROFESSIONAL',
+  onHomeClick,
 }: ValidLogoProps) {
 
   /*
@@ -78,7 +80,7 @@ export default function ValidLogo({
     Z
   `
 
-  return (
+  const logoContent = (
     <div
       className="inline-flex flex-col items-center select-none"
       role="img"
@@ -137,4 +139,20 @@ export default function ValidLogo({
       )}
     </div>
   )
+
+  if (onHomeClick) {
+    return (
+      <button
+        onClick={onHomeClick}
+        data-cursor-hover
+        className="bg-transparent border-0 p-0 text-left cursor-pointer focus:outline-none group active:scale-[0.98] hover:scale-[1.02] transition-all duration-200 origin-center"
+        type="button"
+        aria-label="VALID — Return to home"
+      >
+        {logoContent}
+      </button>
+    )
+  }
+
+  return logoContent
 }

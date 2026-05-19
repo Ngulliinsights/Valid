@@ -108,7 +108,7 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
     <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10 flex items-center justify-between">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={onReturn} />
         <button
           onClick={onReturn}
           data-cursor-hover

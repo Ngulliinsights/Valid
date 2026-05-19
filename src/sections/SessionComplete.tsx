@@ -87,7 +87,7 @@ export default function SessionComplete({ onPlayAgain, onReturn }: SessionComple
 
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={onReturn} />
       </div>
 
       {/* Body */}

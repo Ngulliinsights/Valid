@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import { blurIn } from '../lib/motion'
 import { EchoField, ThresholdPattern } from '../components/patterns'
+import cardImage from '../../images/Clinical scenario card on textured surface.webp'
 
 interface LandingSectionProps {
   onBegin: () => void
@@ -44,131 +45,169 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
         </motion.div>
       </div>
 
-      {/* Main content */}
-      <div className="relative z-10 max-w-[1100px] mx-auto px-6 md:px-16 w-full pt-24 pb-16">
+      {/* Main content split layout on desktop */}
+      <div className="relative z-10 max-w-[1150px] mx-auto px-6 md:px-16 w-full pt-28 pb-16 grid lg:grid-cols-12 gap-12 items-center">
+        
+        {/* Left Column: Text & Content */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          {/* Phase label */}
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-8 flex items-center gap-3"
+          >
+            <div className="w-6 h-px bg-ember" aria-hidden="true" />
+            <span className="label-text text-ember">THERAPEUTIC CONNECTIONS · PROFESSIONAL EDITION</span>
+          </motion.div>
 
-        {/* Phase label */}
-        <motion.div
-          initial={{ opacity: 0, x: -16 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-8 flex items-center gap-3"
-        >
-          <div className="w-6 h-px bg-ember" aria-hidden="true" />
-          <span className="label-text text-ember">THERAPEUTIC CONNECTIONS · PROFESSIONAL EDITION</span>
-        </motion.div>
-
-        {/* Hero heading */}
-        <h1
-          className="font-cormorant font-semibold text-parchment leading-[1.0] tracking-[-0.02em]"
-          style={{ fontSize: 'clamp(60px, 9vw, 96px)' }}
-        >
-          {HERO_LINE1.map((word, i) => (
-            <motion.span
-              key={`l1-${i}`}
-              className="inline-block mr-[0.22em]"
-              variants={blurIn}
-              initial="hidden"
-              animate="visible"
-              transition={{ duration: 0.6, delay: 0.18 + i * 0.07, ease: 'easeOut' }}
-            >
-              {word}
-            </motion.span>
-          ))}
-
-          <br />
-
-          {HERO_LINE2.map((word, i) => (
-            <motion.span
-              key={`l2-${i}`}
-              className="inline-block mr-[0.22em]"
-              variants={blurIn}
-              initial="hidden"
-              animate="visible"
-              transition={{ duration: 0.6, delay: 0.18 + HERO_LINE1.length * 0.07 + i * 0.07, ease: 'easeOut' }}
-            >
-              {word}
-            </motion.span>
-          ))}
-
-          <br />
-
-          {HERO_LINE3.map((word, i) => {
-            const isAccent = i === HERO_LINE3.length - 1
-            return (
+          {/* Hero heading */}
+          <h1
+            className="font-cormorant font-semibold text-parchment leading-[1.0] tracking-[-0.02em]"
+            style={{ fontSize: 'clamp(54px, 8vw, 84px)' }}
+          >
+            {HERO_LINE1.map((word, i) => (
               <motion.span
-                key={`l3-${i}`}
-                className={['inline-block mr-[0.22em]', isAccent ? 'italic' : ''].join(' ')}
+                key={`l1-${i}`}
+                className="inline-block mr-[0.22em]"
                 variants={blurIn}
                 initial="hidden"
                 animate="visible"
-                transition={{
-                  duration: 0.6,
-                  delay: 0.18 + (HERO_LINE1.length + HERO_LINE2.length) * 0.07 + i * 0.07,
-                  ease: 'easeOut',
-                }}
-                style={isAccent ? emberStyle : undefined}
+                transition={{ duration: 0.6, delay: 0.18 + i * 0.07, ease: 'easeOut' }}
               >
                 {word}
               </motion.span>
-            )
-          })}
-        </h1>
+            ))}
 
-        {/* Subtitle — from the copy system gap claim */}
-        <motion.p
-          className="mt-10 font-dm text-base md:text-lg text-drift leading-[1.75] max-w-[500px]"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.72, ease: 'easeOut' }}
-        >
-          Knowing what to say and being able to say it under pressure are two different skills. This trains the second one — before the moment that demands it.
-        </motion.p>
+            <br />
 
-        {/* CTA block */}
-        <motion.div
-          className="mt-10 flex flex-col items-start gap-5"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.90, ease: 'easeOut' }}
-        >
-          <div className="w-12 h-[2px] bg-ember" aria-hidden="true" />
+            {HERO_LINE2.map((word, i) => (
+              <motion.span
+                key={`l2-${i}`}
+                className="inline-block mr-[0.22em]"
+                variants={blurIn}
+                initial="hidden"
+                animate="visible"
+                transition={{ duration: 0.6, delay: 0.18 + HERO_LINE1.length * 0.07 + i * 0.07, ease: 'easeOut' }}
+              >
+                {word}
+              </motion.span>
+            ))}
 
-          <button
-            onClick={onBegin}
-            data-cursor-hover
-            className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+            <br />
+
+            {HERO_LINE3.map((word, i) => {
+              const isAccent = i === HERO_LINE3.length - 1
+              return (
+                <motion.span
+                  key={`l3-${i}`}
+                  className={['inline-block mr-[0.22em]', isAccent ? 'italic' : ''].join(' ')}
+                  variants={blurIn}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.18 + (HERO_LINE1.length + HERO_LINE2.length) * 0.07 + i * 0.07,
+                    ease: 'easeOut',
+                  }}
+                  style={isAccent ? emberStyle : undefined}
+                >
+                  {word}
+                </motion.span>
+              )
+            })}
+          </h1>
+
+          {/* Subtitle */}
+          <motion.p
+            className="mt-8 font-dm text-base text-drift leading-[1.75] max-w-[500px]"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.72, ease: 'easeOut' }}
           >
-            BEGIN SESSION
-            <span
-              aria-hidden="true"
-              className="transition-transform duration-200 group-hover:translate-x-1.5"
+            Knowing what to say and being able to say it under pressure are two different skills. This trains the second one — before the moment that demands it.
+          </motion.p>
+
+          {/* CTA block */}
+          <motion.div
+            className="mt-8 flex flex-col items-start gap-4"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.90, ease: 'easeOut' }}
+          >
+            <div className="w-12 h-[2px] bg-ember" aria-hidden="true" />
+
+            <button
+              onClick={onBegin}
+              data-cursor-hover
+              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
             >
-              →
-            </span>
-          </button>
-
-          <p className="font-dm text-xs text-drift/50 uppercase tracking-[0.12em]">
-            SCENARIO 07 · SUICIDAL IDEATION · INTERMEDIATE · 35 MIN
-          </p>
-        </motion.div>
-
-        {/* Stats strip */}
-        <motion.div
-          className="mt-12 flex items-center gap-10 md:gap-16"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1.08, ease: 'easeOut' }}
-        >
-          {STATS.map((stat, i) => (
-            <div key={i} className="flex flex-col gap-1">
-              <span className="font-cormorant font-semibold text-parchment/80 text-2xl md:text-3xl">
-                {stat.value}
+              BEGIN SESSION
+              <span
+                aria-hidden="true"
+                className="transition-transform duration-200 group-hover:translate-x-1.5"
+              >
+                →
               </span>
-              <span className="label-text text-drift/50">{stat.label}</span>
+            </button>
+
+            <p className="font-dm text-xs text-drift/50 uppercase tracking-[0.12em]">
+              SCENARIO 07 · SUICIDAL IDEATION · INTERMEDIATE · 35 MIN
+            </p>
+          </motion.div>
+
+          {/* Stats strip */}
+          <motion.div
+            className="mt-10 flex items-center gap-10 md:gap-16"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.08, ease: 'easeOut' }}
+          >
+            {STATS.map((stat, i) => (
+              <div key={i} className="flex flex-col gap-1">
+                <span className="font-cormorant font-semibold text-parchment/80 text-2xl md:text-3xl">
+                  {stat.value}
+                </span>
+                <span className="label-text text-drift/50">{stat.label}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+
+        {/* Right Column: Tactile Card Product Mockup */}
+        <motion.div
+          className="hidden lg:flex lg:col-span-5 justify-center pl-8"
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
+        >
+          <div className="relative group max-w-[360px] w-full">
+            {/* Ambient gold glow backplate */}
+            <div 
+              className="absolute -inset-3 rounded bg-gradient-to-tr from-ember/15 via-amber-700/5 to-transparent blur-2xl opacity-60 group-hover:opacity-90 transition duration-700" 
+              aria-hidden="true"
+            />
+            
+            {/* Tactile picture frame with drop shadow */}
+            <div className="relative bg-ground border border-parchment/10 p-4 shadow-[0_28px_60px_-15px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:border-ember/25 group-hover:shadow-[0_36px_72px_-12px_rgba(196,136,42,0.15)]">
+              <div className="overflow-hidden border border-parchment/5 bg-ground/50">
+                <img 
+                  src={cardImage} 
+                  alt="VALID physical clinical scenario card preview" 
+                  className="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-all duration-700 scale-100 group-hover:scale-[1.02]"
+                  loading="eager"
+                />
+              </div>
+              
+              {/* Refined asset micro-labels */}
+              <div className="mt-3.5 flex items-center justify-between text-[9px] tracking-[0.16em] font-dm text-drift/45 uppercase">
+                <span>tactile card system</span>
+                <span className="text-ember font-medium">product preview</span>
+              </div>
             </div>
-          ))}
+          </div>
         </motion.div>
+
       </div>
 
       {/* Bottom rule */}

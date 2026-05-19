@@ -8,15 +8,24 @@ import { DialogueStackPattern } from '../components/patterns'
 interface Phase3ReflectionProps {
   scenario: ScenarioData
   onContinue: () => void
+  onReturnToHome?: () => void
 }
 
-export default function Phase3Reflection({ scenario, onContinue }: Phase3ReflectionProps) {
+export default function Phase3Reflection({ scenario, onContinue, onReturnToHome }: Phase3ReflectionProps) {
+  const handleHomeClick = () => {
+    if (onReturnToHome) {
+      if (confirm('Are you sure you want to exit your active practice session? Your progress will be lost.')) {
+        onReturnToHome()
+      }
+    }
+  }
+
   return (
     <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       <DialogueStackPattern />
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10 flex items-center justify-between">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={handleHomeClick} />
         <PhaseIndicator activePhase={3} />
       </div>
 

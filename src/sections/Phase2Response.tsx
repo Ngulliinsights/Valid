@@ -6,180 +6,391 @@ import { fadeUp, fadeUpTransition } from '../lib/motion'
 import type { ScenarioData } from '../App'
 import { ContainmentPattern } from '../components/patterns'
 
+import { TIER_STYLES, TIERS, INSTINCT_NOTES } from '../config/cardStyles'
+import type { TierKey, ResponseType } from '../config/cardStyles'
+import { BlindArt, TierArt, RarityPips } from '../components/ArtZones'
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type TierKey = 'tier1' | 'tier2' | 'tier3'
-type ResponseType = 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating'
+interface InstinctAnalysis {
+  primaryType: ResponseType
+  confidence: 'high' | 'moderate' | 'low'
+  keywords: string[]
+}
 
 interface Phase2ResponseProps {
   scenario: ScenarioData
   instinctText: string
-  instinctAnalysis?: {
-    primaryType: ResponseType
-    confidence: 'high' | 'moderate' | 'low'
-    keywords: string[]
-  }
+  instinctAnalysis?: InstinctAnalysis
   onResponseTypeSelect: (type: ResponseType) => void
+  onReturnToHome?: () => void
 }
 
 // ---------------------------------------------------------------------------
-// Constants
+// Shared style constants
 // ---------------------------------------------------------------------------
 
-interface TierStyle {
-  accentColor: string
-  borderStyle: 'solid' | 'dashed'
-  bgTint: string
-  effectiveness: string
-  tagBg: string
-  responseType: ResponseType
+const FONT_LABEL: React.CSSProperties = {
+  fontFamily: 'DM Sans, Arial, sans-serif',
+  fontSize: 7,
+  fontWeight: 500,
+  letterSpacing: '0.16em',
+  textTransform: 'uppercase',
 }
 
-const TIER_STYLES: Record<TierKey, TierStyle> = {
-  tier1: {
-    accentColor: '#C45050',
-    borderStyle: 'solid',
-    bgTint: 'rgba(196, 80, 80, 0.07)',
-    effectiveness: 'COUNTERPRODUCTIVE',
-    tagBg: 'rgba(196, 80, 80, 0.12)',
-    responseType: 'invalidating-antagonising',
-  },
-  tier2: {
-    accentColor: '#C4882A',
-    borderStyle: 'dashed',
-    bgTint: 'rgba(196, 136, 42, 0.06)',
-    effectiveness: 'PARTIAL — NOT ENOUGH',
-    tagBg: 'rgba(196, 136, 42, 0.12)',
-    responseType: 'partial',
-  },
-  tier3: {
-    accentColor: '#3D6B65',
-    borderStyle: 'solid',
-    bgTint: 'rgba(61, 107, 101, 0.08)',
-    effectiveness: 'OPTIMAL RESPONSE',
-    tagBg: 'rgba(61, 107, 101, 0.12)',
-    responseType: 'validating',
-  },
+const FONT_QUOTE: React.CSSProperties = {
+  fontFamily: 'Cormorant Garamond, Georgia, serif',
+  fontStyle: 'italic',
 }
 
-const TIERS: TierKey[] = ['tier1', 'tier2', 'tier3']
-
-const INSTINCT_NOTES: Record<TierKey, string> = {
-  tier1:
-    'Your instinct moved toward confrontation. Notice the distance between that impulse and the validating response — closing that gap is exactly what this practice builds.',
-  tier2:
-    'Your instinct reached for partial validation — closer than antagonising, but safety needs to be established before moving toward problem-solving.',
-  tier3:
-    'Your instinct aligned with the validating response. That recognition is the foundation of clinical skill.',
+const INNER_FRAME: React.CSSProperties = {
+  position: 'absolute',
+  inset: 5,
+  borderRadius: 6,
+  border: '0.5px solid rgba(242,237,223,0.06)',
+  pointerEvents: 'none',
+  zIndex: 2,
 }
 
 // ---------------------------------------------------------------------------
-// Sub-components
+// BlindCardItem — Stage 1, text visible, tier hidden
 // ---------------------------------------------------------------------------
 
-/** Expanded card shown after selection in Stage 2 */
-function SelectedTierCard({
-  tierKey,
-  scenario,
+/** Tilt direction: card 1 tilts right, card 2 is straight, card 3 tilts left */
+function tiltForCard(n: number) {
+  if (n === 1) return 0.6
+  if (n === 3) return -0.6
+  return 0
+}
+
+function BlindCardItem({
+  responseText,
+  cardNumber,
+  onClick,
+  delay,
 }: {
-  tierKey: TierKey
-  scenario: ScenarioData
+  responseText: string
+  cardNumber: number
+  onClick: () => void
+  delay: number
 }) {
-  const [mechanismExpanded, setMechanismExpanded] = useState(false)
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{
+        y: -10,
+        rotate: tiltForCard(cardNumber),
+        transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+      }}
+      whileTap={{ scale: 0.97 }}
+      onClick={onClick}
+      type="button"
+      aria-label={`Response option ${cardNumber}`}
+      data-cursor-hover
+      style={{
+        position: 'relative',
+        display: 'block',
+        width: '100%',
+        cursor: 'pointer',
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        textAlign: 'left',
+      }}
+    >
+      {/* Physical depth shadow */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          bottom: -4,
+          left: 8,
+          right: 8,
+          height: 8,
+          borderRadius: '0 0 10px 10px',
+          background: 'rgba(0,0,0,0.5)',
+          filter: 'blur(3px)',
+        }}
+      />
+
+      {/* Card surface */}
+      <div
+        style={{
+          borderRadius: 10,
+          border: '1px solid rgba(242,237,223,0.15)',
+          backgroundColor: '#1C1A18',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          minHeight: 390,
+          position: 'relative',
+        }}
+      >
+        <div aria-hidden="true" style={INNER_FRAME} />
+
+        {/* "RESPONSE" label */}
+        <div
+          style={{
+            ...FONT_LABEL,
+            position: 'absolute',
+            top: 9,
+            left: 11,
+            color: 'rgba(242,237,223,0.22)',
+            zIndex: 3,
+          }}
+        >
+          RESPONSE
+        </div>
+
+        {/* Card number watermark */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: 2,
+            right: 9,
+            fontFamily: 'Cormorant Garamond, Georgia, serif',
+            fontSize: 40,
+            fontWeight: 600,
+            color: 'rgba(242,237,223,0.05)',
+            lineHeight: 1,
+            zIndex: 3,
+            userSelect: 'none',
+          }}
+        >
+          {`0${cardNumber}`}
+        </div>
+
+        {/* Art zone */}
+        <div
+          style={{
+            position: 'relative',
+            height: 140,
+            flexShrink: 0,
+            backgroundColor: '#151311',
+            overflow: 'hidden',
+          }}
+        >
+          <BlindArt />
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 44,
+              background: 'linear-gradient(to top, #1C1A18, transparent)',
+            }}
+          />
+        </div>
+
+        {/* Divider */}
+        <div style={{ height: 1, marginInline: 10, backgroundColor: 'rgba(242,237,223,0.08)', flexShrink: 0 }} />
+
+        {/* Text body */}
+        <div
+          style={{
+            flex: 1,
+            padding: '14px 16px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(8,7,6,0.15)',
+          }}
+        >
+          <blockquote
+            style={{
+              ...FONT_QUOTE,
+              fontSize: 14.5,
+              lineHeight: 1.75,
+              color: 'rgba(242,237,223,0.82)',
+              margin: 0,
+              overflow: 'hidden',
+              display: '-webkit-box' as React.CSSProperties['display'],
+              WebkitLineClamp: 7,
+              WebkitBoxOrient: 'vertical' as React.CSSProperties['WebkitBoxOrient'],
+            }}
+          >
+            &ldquo;{responseText}&rdquo;
+          </blockquote>
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            height: 32,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingInline: 13,
+            borderTop: '0.5px solid rgba(242,237,223,0.07)',
+            flexShrink: 0,
+          }}
+        >
+          <span style={{ ...FONT_LABEL, color: 'rgba(242,237,223,0.2)' }}>TAP TO SELECT</span>
+          <div
+            style={{
+              width: 5,
+              height: 5,
+              borderRadius: '50%',
+              border: '0.5px solid rgba(242,237,223,0.15)',
+            }}
+          />
+        </div>
+      </div>
+    </motion.button>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// SelectedTierCard — Stage 2, full reveal
+// ---------------------------------------------------------------------------
+
+function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: ScenarioData }) {
+  const [mechanismOpen, setMechanismOpen] = useState(false)
   const style = TIER_STYLES[tierKey]
   const data = scenario.responses[tierKey]
 
   return (
     <article
-      className="relative flex flex-col overflow-hidden p-8"
       style={{
+        borderRadius: 12,
+        border: `1px solid ${style.accentColor}45`,
         backgroundColor: '#1C1A18',
-        borderLeft: `3px ${style.borderStyle} ${style.accentColor}`,
-        background: `linear-gradient(135deg, ${style.bgTint} 0%, #1C1A18 60%)`,
-        border: `1px solid ${style.accentColor}20`,
+        boxShadow: `0 0 0 1px ${style.accentColor}10, 0 20px 60px rgba(0,0,0,0.75), 0 6px 16px rgba(0,0,0,0.4)`,
+        overflow: 'hidden',
+        position: 'relative',
       }}
     >
-      {/* Top accent line */}
-      <div
-        className="h-[2px] w-full mb-6"
-        style={{ backgroundColor: style.accentColor, opacity: 0.6 }}
-        aria-hidden="true"
-      />
+      <div aria-hidden="true" style={{ ...INNER_FRAME, borderRadius: 8, border: `0.5px solid ${style.accentColor}18` }} />
 
-      {/* Label row */}
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <span className="label-text" style={{ color: style.accentColor }}>
-            {data.label}
-          </span>
-          <span
-            className="font-dm text-[9px] uppercase tracking-[0.12em] block mt-1"
-            style={{ color: style.accentColor, opacity: 0.6 }}
-          >
-            {data.sublabel}
-          </span>
-        </div>
-        <span
-          className="font-dm text-[9px] font-medium uppercase tracking-[0.1em] px-3 py-1.5 shrink-0"
-          style={{ color: style.accentColor, backgroundColor: style.tagBg }}
+      {/* Art zone */}
+      <div style={{ position: 'relative', height: 160, overflow: 'hidden', backgroundColor: '#121010' }}>
+        <TierArt tier={tierKey} />
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
+            background: 'linear-gradient(to top, #1C1A18, transparent)',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute', top: 10, right: 10,
+            ...FONT_LABEL,
+            color: style.accentColor,
+            backgroundColor: style.tagBg,
+            padding: '4px 8px',
+            zIndex: 3,
+          }}
         >
           YOUR CHOICE
-        </span>
+        </div>
       </div>
 
-      {/* Response text */}
-      <blockquote className="font-cormorant italic text-xl leading-[1.8] text-parchment/90 mb-8">
-        &ldquo;{data.text}&rdquo;
-      </blockquote>
+      {/* Accent rule */}
+      <div style={{ height: 1, backgroundColor: style.accentColor, opacity: 0.5 }} />
+
+      {/* Name banner */}
+      <div style={{ padding: '12px 18px 10px', borderBottom: `0.5px solid ${style.accentColor}20` }}>
+        <div style={{ ...FONT_LABEL, fontSize: 9, letterSpacing: '0.18em', color: style.accentColor, marginBottom: 3 }}>
+          {data.label}
+        </div>
+        <div style={{ ...FONT_LABEL, fontSize: 8, letterSpacing: '0.12em', color: style.accentColor, opacity: 0.55 }}>
+          {data.sublabel}
+        </div>
+      </div>
+
+      {/* Quote */}
+      <div
+        style={{
+          padding: '18px 18px 16px',
+          backgroundColor: 'rgba(8,7,6,0.2)',
+          borderBottom: `0.5px solid ${style.accentColor}15`,
+        }}
+      >
+        <blockquote style={{ ...FONT_QUOTE, fontSize: 19, lineHeight: 1.8, color: 'rgba(242,237,223,0.9)', margin: 0 }}>
+          &ldquo;{data.text}&rdquo;
+        </blockquote>
+      </div>
 
       {/* Mechanism toggle */}
-      <div className="pt-6" style={{ borderTop: `1px solid ${style.accentColor}20` }}>
+      <div style={{ padding: '12px 18px' }}>
         <button
-          onClick={() => setMechanismExpanded((prev) => !prev)}
-          className="w-full text-left flex items-center justify-between gap-2 mb-3"
-          aria-expanded={mechanismExpanded}
+          onClick={() => setMechanismOpen((p) => !p)}
           type="button"
+          aria-expanded={mechanismOpen}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          }}
         >
+          <span style={{ ...FONT_LABEL, fontSize: 8, color: style.accentColor }}>{data.mechanism}</span>
           <span
-            className="font-dm font-medium uppercase tracking-[0.1em] text-[9px]"
-            style={{ color: style.accentColor }}
-          >
-            {data.mechanism}
-          </span>
-          <span
-            className="font-dm text-[11px] transition-transform duration-200"
-            style={{
-              color: style.accentColor,
-              transform: mechanismExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-            }}
             aria-hidden="true"
+            style={{
+              color: style.accentColor, fontSize: 11, fontFamily: 'DM Sans, Arial, sans-serif',
+              display: 'inline-block',
+              transition: 'transform 0.2s',
+              transform: mechanismOpen ? 'rotate(180deg)' : 'none',
+            }}
           >
             ↓
           </span>
         </button>
 
         <AnimatePresence>
-          {mechanismExpanded && (
+          {mechanismOpen && (
             <motion.p
               key="clinical-note"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25 }}
-              className="font-dm text-sm text-drift leading-relaxed overflow-hidden"
+              style={{
+                fontFamily: 'DM Sans, Arial, sans-serif',
+                fontSize: 13, lineHeight: 1.65,
+                color: '#9A9488', margin: '10px 0 0', overflow: 'hidden',
+              }}
             >
               {data.clinicalNote}
             </motion.p>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Footer */}
+      <div
+        style={{
+          padding: '8px 18px 10px',
+          borderTop: `0.5px solid ${style.accentColor}15`,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}
+      >
+        <span
+          style={{
+            ...FONT_LABEL, fontSize: 7,
+            color: style.accentColor, backgroundColor: style.tagBg, padding: '3px 8px',
+          }}
+        >
+          {style.effectiveness}
+        </span>
+        <RarityPips tier={tierKey} size={6} />
+      </div>
     </article>
   )
 }
 
-/** Compact card used in the contrast grid */
+// ---------------------------------------------------------------------------
+// ContrastCard — Stage 2 comparison grid, compact
+// ---------------------------------------------------------------------------
+
 function ContrastCard({
   tierKey,
   scenario,
@@ -191,91 +402,152 @@ function ContrastCard({
 }) {
   const style = TIER_STYLES[tierKey]
   const data = scenario.responses[tierKey]
+  const dimColor = (alpha: string) => `rgba(242,237,223,${alpha})`
 
   return (
     <article
-      className="relative flex flex-col overflow-hidden p-6"
+      aria-pressed={isSelected}
       style={{
-        opacity: isSelected ? 1 : 0.5,
-        backgroundColor: isSelected ? '#1C1A18' : '#2A2825',
-        borderLeft: `2px ${isSelected ? style.borderStyle : 'solid'} ${
-          isSelected ? style.accentColor : 'rgba(242, 237, 223, 0.1)'
-        }`,
-        background: isSelected
-          ? `linear-gradient(135deg, ${style.bgTint} 0%, #1C1A18 60%)`
-          : 'rgba(42, 40, 37, 0.6)',
-        border: isSelected
-          ? `1px solid ${style.accentColor}20`
-          : '1px solid rgba(242, 237, 223, 0.08)',
+        borderRadius: 10,
+        border: isSelected ? `1px solid ${style.accentColor}45` : `1px solid ${dimColor('0.07')}`,
+        backgroundColor: isSelected ? '#1C1A18' : '#171512',
+        boxShadow: isSelected ? '0 8px 24px rgba(0,0,0,0.5)' : 'none',
+        overflow: 'hidden',
+        opacity: isSelected ? 1 : 0.38,
+        position: 'relative',
+        transition: 'opacity 0.3s',
       }}
     >
-      {isSelected && (
+      {/* Art zone */}
+      <div style={{ position: 'relative', height: 90, overflow: 'hidden', backgroundColor: '#111010' }}>
+        {isSelected ? (
+          <TierArt tier={tierKey} />
+        ) : (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute', inset: 0,
+              backgroundImage:
+                'repeating-linear-gradient(45deg, transparent, transparent 11px, rgba(61,107,101,0.05) 11px, rgba(61,107,101,0.05) 12px)',
+            }}
+          />
+        )}
         <div
-          className="absolute top-3 right-3 w-2 h-2 rounded-full"
-          style={{ backgroundColor: style.accentColor }}
           aria-hidden="true"
+          style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 30,
+            background: `linear-gradient(to top, ${isSelected ? '#1C1A18' : '#171512'}, transparent)`,
+          }}
         />
-      )}
+        {isSelected && (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute', top: 7, right: 7,
+              width: 6, height: 6, borderRadius: '50%', backgroundColor: style.accentColor,
+            }}
+          />
+        )}
+      </div>
 
-      <div className="mb-4">
-        <h4
-          className="label-text text-xs mb-1"
-          style={{ color: isSelected ? style.accentColor : 'rgba(242, 237, 223, 0.4)' }}
+      {isSelected && <div style={{ height: 0.5, backgroundColor: style.accentColor, opacity: 0.4 }} />}
+
+      {/* Content */}
+      <div style={{ padding: '10px 13px' }}>
+        <div
+          style={{
+            ...FONT_LABEL, fontSize: 8, letterSpacing: '0.14em',
+            color: isSelected ? style.accentColor : dimColor('0.28'), marginBottom: 2,
+          }}
         >
           {data.label}
-        </h4>
-        <p
-          className="font-dm text-[11px] uppercase tracking-[0.1em]"
+        </div>
+        <div
           style={{
-            color: isSelected ? style.accentColor : 'rgba(242, 237, 223, 0.3)',
-            opacity: 0.7,
+            ...FONT_LABEL, fontSize: 7, letterSpacing: '0.10em',
+            color: isSelected ? style.accentColor : dimColor('0.18'), opacity: 0.7, marginBottom: 9,
           }}
         >
           {data.sublabel}
-        </p>
+        </div>
+        <blockquote
+          style={{
+            ...FONT_QUOTE,
+            fontSize: 13, lineHeight: 1.65,
+            color: isSelected ? dimColor('0.88') : dimColor('0.38'),
+            margin: '0 0 10px',
+            overflow: 'hidden',
+            display: '-webkit-box' as React.CSSProperties['display'],
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: 'vertical' as React.CSSProperties['WebkitBoxOrient'],
+          }}
+        >
+          &ldquo;{data.text}&rdquo;
+        </blockquote>
       </div>
 
-      <blockquote
-        className="font-cormorant italic text-sm leading-relaxed mb-4"
-        style={{ color: isSelected ? '#F2EDDF' : 'rgba(242, 237, 223, 0.5)' }}
-      >
-        &ldquo;{data.text}&rdquo;
-      </blockquote>
-
-      <span
-        className="font-dm text-[8px] font-medium uppercase tracking-[0.1em] px-2 py-1 w-fit"
+      {/* Footer */}
+      <div
         style={{
-          color: isSelected ? style.accentColor : 'rgba(242, 237, 223, 0.4)',
-          backgroundColor: isSelected ? style.tagBg : 'rgba(242, 237, 223, 0.04)',
+          padding: '6px 13px 9px',
+          borderTop: isSelected ? `0.5px solid ${style.accentColor}18` : `0.5px solid ${dimColor('0.06')}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}
       >
-        {style.effectiveness}
-      </span>
+        <span
+          style={{
+            ...FONT_LABEL, fontSize: 7, letterSpacing: '0.10em',
+            color: isSelected ? style.accentColor : dimColor('0.22'),
+            backgroundColor: isSelected ? style.tagBg : 'rgba(242,237,223,0.03)',
+            padding: '2px 6px',
+          }}
+        >
+          {style.effectiveness}
+        </span>
+        <RarityPips tier={tierKey} size={4} />
+      </div>
     </article>
   )
 }
 
-/** Instinct block — shared between both stages */
+// ---------------------------------------------------------------------------
+// InstinctAside
+// ---------------------------------------------------------------------------
+
 function InstinctAside({
   instinctText,
+  instinctAnalysis,
   selectedTier,
 }: {
   instinctText: string
+  instinctAnalysis?: InstinctAnalysis
   selectedTier: TierKey | null
 }) {
   return (
     <aside
       className="max-w-[900px] mx-auto"
-      style={{
-        borderLeft: '3px solid rgba(154, 148, 136, 0.3)',
-        backgroundColor: 'rgba(154, 148, 136, 0.04)',
-      }}
+      style={{ borderLeft: '3px solid rgba(154,148,136,0.3)', backgroundColor: 'rgba(154,148,136,0.04)' }}
     >
       <div className="p-6">
         <span className="label-text text-drift block mb-3">YOUR PHASE 01 INSTINCT</span>
         <blockquote className="font-cormorant italic text-base text-parchment/60 leading-relaxed">
           &ldquo;{instinctText || 'No response recorded.'}&rdquo;
         </blockquote>
+
+        {/* Keyword chips — shown when analysis is available */}
+        {instinctAnalysis && instinctAnalysis.keywords.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2" aria-label="Detected keywords">
+            {instinctAnalysis.keywords.map((kw) => (
+              <span
+                key={kw}
+                className="font-dm text-[10px] uppercase tracking-widest text-drift/40 border border-drift/15 px-2 py-0.5"
+              >
+                {kw}
+              </span>
+            ))}
+          </div>
+        )}
+
         {selectedTier && (
           <p className="mt-3 font-dm text-xs text-drift/40 leading-relaxed">
             {INSTINCT_NOTES[selectedTier]}
@@ -295,11 +567,23 @@ export default function Phase2Response({
   instinctText,
   instinctAnalysis,
   onResponseTypeSelect,
+  onReturnToHome,
 }: Phase2ResponseProps) {
   const [selectedTier, setSelectedTier] = useState<TierKey | null>(null)
 
   const handleConfirm = () => {
     if (selectedTier) onResponseTypeSelect(TIER_STYLES[selectedTier].responseType)
+  }
+
+  const handleHomeClick = () => {
+    if (
+      onReturnToHome &&
+      window.confirm(
+        'Exit this practice session? Your progress will not be saved.',
+      )
+    ) {
+      onReturnToHome()
+    }
   }
 
   return (
@@ -308,12 +592,13 @@ export default function Phase2Response({
 
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10 flex items-center justify-between">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={handleHomeClick} />
         <PhaseIndicator activePhase={2} />
       </div>
 
       <div className="relative z-[10] max-w-[1200px] mx-auto px-6 md:px-10 pb-16">
         <AnimatePresence mode="wait">
+
           {/* ----------------------------------------------------------------
               STAGE 1 — BLIND SELECTION
           ---------------------------------------------------------------- */}
@@ -342,59 +627,30 @@ export default function Phase2Response({
                 </p>
               </motion.div>
 
-              {/* Blind response cards */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-4 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 items-start">
                 {TIERS.map((key, idx) => (
-                  <motion.button
+                  <BlindCardItem
                     key={key}
-                    initial={{ opacity: 0, y: 40 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.55, delay: 0.2 + idx * 0.14, ease: [0.16, 1, 0.3, 1] }}
+                    responseText={scenario.responses[key].text}
+                    cardNumber={idx + 1}
                     onClick={() => setSelectedTier(key)}
-                    data-cursor-hover
-                    className="relative text-left h-full transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
-                    type="button"
-                    aria-label={`Response option ${idx + 1}`}
-                  >
-                    <article
-                      className="relative h-full flex flex-col overflow-hidden p-8"
-                      style={{
-                        backgroundColor: '#2A2825',
-                        border: '1px solid rgba(242, 237, 223, 0.15)',
-                      }}
-                    >
-                      {/* Watermark number */}
-                      <div
-                        aria-hidden="true"
-                        className="absolute top-3 right-4 font-cormorant font-semibold leading-none select-none pointer-events-none tabular-nums"
-                        style={{ fontSize: 48, color: 'rgba(242, 237, 223, 0.08)' }}
-                      >
-                        {`0${idx + 1}`}
-                      </div>
-
-                      <blockquote className="font-cormorant italic text-lg leading-[1.75] text-parchment/85 flex-1">
-                        &ldquo;{scenario.responses[key].text}&rdquo;
-                      </blockquote>
-
-                      <div className="mt-6 pt-4 border-t border-parchment/10">
-                        <span className="font-dm text-[9px] uppercase tracking-[0.1em] text-parchment/40">
-                          Click to select
-                        </span>
-                      </div>
-                    </article>
-                  </motion.button>
+                    delay={0.2 + idx * 0.14}
+                  />
                 ))}
               </div>
 
-              {/* Instinct reminder */}
               <motion.div
                 variants={fadeUp}
                 initial="hidden"
                 animate="visible"
                 transition={fadeUpTransition(0.75)}
-                className="mt-10"
+                className="mt-12"
               >
-                <InstinctAside instinctText={instinctText} selectedTier={null} />
+                <InstinctAside
+                  instinctText={instinctText}
+                  instinctAnalysis={instinctAnalysis}
+                  selectedTier={null}
+                />
               </motion.div>
             </motion.div>
 
@@ -426,7 +682,7 @@ export default function Phase2Response({
                 </p>
               </motion.div>
 
-              {/* Selected response — expanded */}
+              {/* Selected card — expanded */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -460,7 +716,11 @@ export default function Phase2Response({
                 transition={{ duration: 0.4, delay: 0.3 }}
                 className="mb-10"
               >
-                <InstinctAside instinctText={instinctText} selectedTier={selectedTier} />
+                <InstinctAside
+                  instinctText={instinctText}
+                  instinctAnalysis={instinctAnalysis}
+                  selectedTier={selectedTier}
+                />
               </motion.div>
 
               {/* Actions */}
@@ -495,6 +755,7 @@ export default function Phase2Response({
               </motion.div>
             </motion.div>
           )}
+
         </AnimatePresence>
       </div>
     </section>

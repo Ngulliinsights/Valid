@@ -11,6 +11,7 @@ interface Phase1DiagnosticProps {
   instinctText: string
   onInstinctChange: (text: string) => void
   onContinue: () => void
+  onReturnToHome?: () => void
 }
 
 const TIMER_SECONDS = 5 * 60
@@ -56,17 +57,26 @@ export default function Phase1Diagnostic({
   instinctText,
   onInstinctChange,
   onContinue,
+  onReturnToHome,
 }: Phase1DiagnosticProps) {
   const [isFlipped, setIsFlipped] = useState(false)
   const { display: timerDisplay, isExpired, pct: timerPct } = useCountdown(TIMER_SECONDS)
   const handleFlip = useCallback(() => setIsFlipped((f) => !f), [])
+
+  const handleHomeClick = () => {
+    if (onReturnToHome) {
+      if (confirm('Are you sure you want to exit your active practice session? Your progress will be lost.')) {
+        onReturnToHome()
+      }
+    }
+  }
 
   return (
     <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       <ClinicalSignalPattern />
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10 flex items-center justify-between">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={handleHomeClick} />
         <PhaseIndicator activePhase={1} />
       </div>
 

@@ -6,6 +6,7 @@ import type { ScenarioData, ResponseTier } from '../App'
 import type { PracticeEntry } from '../types/practice'
 import type { AnalysisResult } from '../lib/responseAnalysis'
 import { savePracticeEntry } from '../lib/practiceJournal'
+import reflectionImage from '../../images/The space between knowing and responding.webp'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -23,6 +24,7 @@ interface PracticeSessionCompleteProps {
   selectedResponseTier: ResponseTier
   onPlayAnother: () => void
   onReviewHistory: () => void
+  onReturnToHome?: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -147,6 +149,7 @@ export default function PracticeSessionComplete({
   selectedResponseTier,
   onPlayAnother,
   onReviewHistory,
+  onReturnToHome,
 }: PracticeSessionCompleteProps) {
   const [commitment, setCommitment] = useState('')
   const [commitmentError, setCommitmentError] = useState(false)
@@ -187,7 +190,7 @@ export default function PracticeSessionComplete({
     <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={onReturnToHome} />
       </div>
 
       {/* Body */}
@@ -277,42 +280,69 @@ export default function PracticeSessionComplete({
             <ContrastText type={responseType} />
           </motion.div>
 
-          {/* Behavioural commitment */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            transition={fadeUpTransition(0.5)}
-            className="space-y-4"
-          >
-            <div className="space-y-2">
-              <label htmlFor="commitment" className="label-text text-ember">
-                BEHAVIORAL COMMITMENT FOR YOUR NEXT ENCOUNTER
-              </label>
-              <p className="text-xs text-drift/60">
-                What specific change will you carry forward when facing a similar clinical situation?
-              </p>
-            </div>
-            <textarea
-              id="commitment"
-              value={commitment}
-              onChange={(e) => {
-                setCommitment(e.target.value)
-                if (commitmentError && e.target.value.trim()) setCommitmentError(false)
-              }}
-              placeholder="E.g., 'I will acknowledge the emotional experience first, before moving to safety assessment.' or 'I will resist the urge to correct the belief and instead validate the fear beneath it.'"
-              className={`w-full bg-ground border text-parchment placeholder-drift/40 p-4 font-dm text-sm focus:outline-none focus:ring-1 resize-none h-24 transition-colors ${
-                commitmentError
-                  ? 'border-red-500/60 focus:border-red-400 focus:ring-red-400/30'
-                  : 'border-drift/30 focus:border-ember focus:ring-ember'
-              }`}
-            />
-            {commitmentError && (
-              <p className="text-xs text-red-400">
-                Please articulate a specific behavioral commitment before saving.
-              </p>
-            )}
-          </motion.div>
+          {/* Behavioural commitment & Reflection Canvas Split Grid */}
+          <div className="grid md:grid-cols-12 gap-6 items-stretch">
+            
+            {/* Commitment Form Box */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={fadeUpTransition(0.5)}
+              className="space-y-4 md:col-span-7 flex flex-col justify-between"
+            >
+              <div className="space-y-2">
+                <label htmlFor="commitment" className="label-text text-ember">
+                  BEHAVIORAL COMMITMENT FOR YOUR NEXT ENCOUNTER
+                </label>
+                <p className="text-xs text-drift/60">
+                  What specific change will you carry forward when facing a similar clinical situation?
+                </p>
+              </div>
+              <textarea
+                id="commitment"
+                value={commitment}
+                onChange={(e) => {
+                  setCommitment(e.target.value)
+                  if (commitmentError && e.target.value.trim()) setCommitmentError(false)
+                }}
+                placeholder="E.g., 'I will acknowledge the emotional experience first, before moving to safety assessment.' or 'I will resist the urge to correct the belief and instead validate the fear beneath it.'"
+                className={`w-full bg-ground border text-parchment placeholder-drift/40 p-4 font-dm text-sm focus:outline-none focus:ring-1 resize-none h-[116px] transition-colors ${
+                  commitmentError
+                    ? 'border-red-500/60 focus:border-red-400 focus:ring-red-400/30'
+                    : 'border-drift/30 focus:border-ember focus:ring-ember'
+                }`}
+              />
+              {commitmentError && (
+                <p className="text-xs text-red-400">
+                  Please articulate a specific behavioral commitment before saving.
+                </p>
+              )}
+            </motion.div>
+
+            {/* Ambient Reflection Canvas */}
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              transition={fadeUpTransition(0.55)}
+              className="hidden md:flex md:col-span-5 flex-col bg-ground border border-drift/20 p-4 justify-between"
+            >
+              <div className="overflow-hidden border border-parchment/5 bg-ground/50 flex-1 flex items-center justify-center">
+                <img 
+                  src={reflectionImage} 
+                  alt="Ambient reflection art: The space between knowing and responding" 
+                  className="w-full h-full object-cover max-h-[120px] grayscale-[20%] hover:grayscale-0 transition-all duration-700"
+                  loading="lazy"
+                />
+              </div>
+              <div className="mt-3 flex items-center justify-between text-[8px] tracking-[0.15em] font-dm text-drift/40 uppercase">
+                <span>Lived Experience Art</span>
+                <span className="text-tide/70">Reflection Anchor</span>
+              </div>
+            </motion.div>
+
+          </div>
 
           {/* Actions */}
           <motion.div

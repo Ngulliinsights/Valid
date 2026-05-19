@@ -1,100 +1,16 @@
-import { useState, useRef, useEffect, useId } from 'react'
+import { useState, useCallback, useRef, useEffect, useId } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
 import { DialogueStackPattern } from '../components/patterns'
-import './ScenarioSelection.css'
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-export type VerticalKey = 'anxiety' | 'depression' | 'altered-perception'
-export type ComplexityLevel = 'Basic' | 'Intermediate' | 'Advanced' | 'Master'
-
-export interface ScenarioSelection {
-  mode: 'random' | 'targeted'
-  vertical?: VerticalKey
-  complexity?: ComplexityLevel
-}
+// Modular configurations, types, and helpers
+import { VERTICALS, COMPLEXITY_LEVELS, buildSessionSummary } from '../config/scenarioConfig'
+import type { VerticalKey, ComplexityLevel, ScenarioSelection } from '../config/scenarioConfig'
 
 interface ScenarioSelectionProps {
   onBegin: (selection: ScenarioSelection) => void
-}
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-interface VerticalConfig {
-  key: VerticalKey
-  register: string
-  label: string
-  description: string
-  clinicalNote: string
-  accentColor: string
-  tagBg: string
-  scenarioCount: number
-}
-
-const VERTICALS: VerticalConfig[] = [
-  {
-    key: 'anxiety',
-    register: 'REGISTER 01',
-    label: 'Anxiety & Spiral Thinking',
-    description:
-      'Panic, obsessive worry, avoidance, and the catastrophising loops that keep people stuck before a threat has materialised.',
-    clinicalNote:
-      'Instinct failure mode: rushing to reassurance before safety is established.',
-    accentColor: '#7C9E8E',
-    tagBg: 'rgba(124, 158, 142, 0.10)',
-    scenarioCount: 20,
-  },
-  {
-    key: 'depression',
-    register: 'REGISTER 02',
-    label: 'Depression & Withdrawal',
-    description:
-      'Low energy, social retreat, hopelessness, and the quiet signals that something serious is building beneath the surface.',
-    clinicalNote:
-      'Instinct failure mode: pivoting to problem-solving before emotional presence is established.',
-    accentColor: '#8A8FC4',
-    tagBg: 'rgba(138, 143, 196, 0.10)',
-    scenarioCount: 20,
-  },
-  {
-    key: 'altered-perception',
-    register: 'REGISTER 03',
-    label: 'Altered Perception',
-    description:
-      'Paranoia, grandiosity, psychosis, and the situations where shared reality has broken down — the hardest register for most supporters.',
-    clinicalNote:
-      'Instinct failure mode: either confronting the belief directly or endorsing it through false agreement.',
-    accentColor: '#C4882A',
-    tagBg: 'rgba(196, 136, 42, 0.10)',
-    scenarioCount: 20,
-  },
-]
-
-const COMPLEXITY_LEVELS: { level: ComplexityLevel; description: string }[] = [
-  { level: 'Basic',        description: 'Single emotion · clear context · low ambiguity' },
-  { level: 'Intermediate', description: 'Comorbid presentations · competing demands' },
-  { level: 'Advanced',     description: 'Safety risk · treatment resistance · rupture' },
-  { level: 'Master',       description: 'Multi-system complexity · institutional pressure' },
-]
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function buildSessionSummary(
-  vertical: VerticalKey,
-  complexity: ComplexityLevel | null,
-): string {
-  const config = VERTICALS.find((v) => v.key === vertical)!
-  return complexity
-    ? `${config.label} · ${complexity} complexity.`
-    : `${config.label} · all complexity levels.`
+  onReturnToHome?: () => void
 }
 
 // ---------------------------------------------------------------------------
@@ -141,10 +57,11 @@ function VerticalDropdown({
 
   const selectedVertical = VERTICALS.find((v) => v.key === selected)
 
-  const close = () => {
+  // Stable reference — safe to list as a dep in the effects below.
+  const close = useCallback(() => {
     setIsOpen(false)
     setSearchQuery('')
-  }
+  }, [])
 
   // Close on outside click. Separated from the focus effect below so each
   // effect has a single, clear responsibility.
@@ -157,7 +74,7 @@ function VerticalDropdown({
     }
     document.addEventListener('mousedown', handleMouseDown)
     return () => document.removeEventListener('mousedown', handleMouseDown)
-  }, [isOpen])
+  }, [isOpen, close])
 
   // Focus the search input whenever the menu opens.
   useEffect(() => {
@@ -172,7 +89,7 @@ function VerticalDropdown({
     }
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen])
+  }, [isOpen, close])
 
   return (
     <div ref={dropdownRef} className="relative">
@@ -183,7 +100,7 @@ function VerticalDropdown({
         data-cursor-hover
         type="button"
         aria-haspopup="listbox"
-        aria-expanded={`${isOpen}`}
+        aria-expanded={isOpen}
         aria-labelledby={`${labelId} ${triggerId}`}
         className={`w-full text-left p-4 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember vertical-dropdown-trigger ${isOpen ? 'vertical-dropdown-trigger-open' : ''}`}
       >
@@ -217,9 +134,7 @@ function VerticalDropdown({
             className="absolute top-full left-0 right-0 mt-2 z-50 overflow-hidden vertical-dropdown-menu"
           >
             {/* Search */}
-            <div
-              className="p-3 vertical-dropdown-search-input-wrapper"
-            >
+            <div className="p-3 vertical-dropdown-search-input-wrapper">
               <input
                 ref={searchInputRef}
                 type="text"
@@ -240,7 +155,7 @@ function VerticalDropdown({
                     <button
                       key={vertical.key}
                       role="option"
-                      aria-selected={`${isSelected}`}
+                      aria-selected={isSelected}
                       onClick={() => {
                         onSelect(isSelected ? null : vertical.key)
                         close()
@@ -360,7 +275,7 @@ function ComplexitySelector({
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function ScenarioSelection({ onBegin }: ScenarioSelectionProps) {
+export default function ScenarioSelection({ onBegin, onReturnToHome }: ScenarioSelectionProps) {
   const [selectedVertical,   setSelectedVertical]   = useState<VerticalKey | null>(null)
   const [selectedComplexity, setSelectedComplexity] = useState<ComplexityLevel | null>(null)
 
@@ -385,7 +300,7 @@ export default function ScenarioSelection({ onBegin }: ScenarioSelectionProps) {
 
       {/* Top bar */}
       <div className="relative z-[10] p-6 md:p-10">
-        <ValidLogo size="sm" color="parchment" />
+        <ValidLogo size="sm" color="parchment" onHomeClick={onReturnToHome} />
       </div>
 
       <div className="relative z-[10] max-w-[1100px] mx-auto px-6 md:px-16 pb-24">
@@ -402,9 +317,7 @@ export default function ScenarioSelection({ onBegin }: ScenarioSelectionProps) {
             <div className="w-6 h-px bg-ember" aria-hidden="true" />
             <span className="label-text text-ember">PHASE 00 · SESSION SETUP</span>
           </div>
-          <h2
-            className="font-cormorant font-medium text-parchment mb-4 leading-tight scenario-selection-header-title"
-          >
+          <h2 className="font-cormorant font-medium text-parchment mb-4 leading-tight scenario-selection-header-title">
             What do you want to practise?
           </h2>
           <p className="font-dm text-sm text-drift leading-relaxed max-w-lg">
@@ -504,9 +417,7 @@ export default function ScenarioSelection({ onBegin }: ScenarioSelectionProps) {
               transition={{ duration: 0.3 }}
               className="overflow-hidden mb-10"
             >
-              <div
-                className="p-6 complexity-selector-wrapper"
-              >
+              <div className="p-6 complexity-selector-wrapper">
                 <ComplexitySelector
                   selected={selectedComplexity}
                   onSelect={setSelectedComplexity}
