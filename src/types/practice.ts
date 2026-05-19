@@ -14,6 +14,15 @@ export interface PracticeEntry {
   
   // Phase 1: Clinician's instinctive response
   instinctiveResponse: string
+  
+  // Phase 1: Analysis of instinctive response (what pattern their instinct revealed)
+  instinctAnalysis?: {
+    primaryType: 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating'
+    confidence: 'high' | 'moderate' | 'low'
+    keywords: string[]
+  }
+  
+  // Phase 2: Clinician's selected response (which tier they chose as model)
   responseType: 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating'
   
   // Phase 3: Behavioral commitment

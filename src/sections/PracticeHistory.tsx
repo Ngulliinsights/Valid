@@ -51,7 +51,10 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
         '',
         `Date: ${new Date(entry.timestamp).toLocaleString()}`,
         `Scenario #${entry.scenarioNumber} — ${entry.category} (${entry.complexity})`,
-        `Response Type: ${entry.responseType}`,
+        entry.instinctAnalysis
+          ? `Instinct Analysis: ${entry.instinctAnalysis.primaryType} (${entry.instinctAnalysis.confidence} confidence)`
+          : 'Instinct Analysis: Not captured',
+        `Phase 2 Selection: ${entry.responseType}`,
         `Commitment: ${entry.behavioralCommitment}`,
         '─'.repeat(51),
       ]),
@@ -235,40 +238,78 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                   {history
                     .slice()
                     .reverse()
-                    .map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="bg-ground border border-drift/20 p-4 space-y-2"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-sm text-drift/60">
-                              {new Date(entry.timestamp).toLocaleString()}
-                            </p>
-                            <p className="font-medium text-parchment">
-                              Scenario {entry.scenarioNumber} · {entry.category}
-                            </p>
+                    .map((entry) => {
+                      const getBadgeColor = (type: string) => {
+                        switch (type) {
+                          case 'invalidating-antagonising':
+                            return 'bg-red-950/40 text-red-200'
+                          case 'invalidating-enabling':
+                            return 'bg-orange-950/40 text-orange-200'
+                          case 'partial':
+                            return 'bg-amber-950/40 text-amber-200'
+                          case 'validating':
+                            return 'bg-teal-950/40 text-teal-200'
+                          default:
+                            return 'bg-drift/20 text-drift'
+                        }
+                      }
+
+                      return (
+                        <div
+                          key={entry.id}
+                          className="bg-ground border border-drift/20 p-4 space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div>
+                              <p className="text-sm text-drift/60">
+                                {new Date(entry.timestamp).toLocaleString()}
+                              </p>
+                              <p className="font-medium text-parchment">
+                                Scenario {entry.scenarioNumber} · {entry.category}
+                              </p>
+                            </div>
                           </div>
-                          <span
-                            className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded whitespace-nowrap ${
-                              entry.responseType === 'invalidating-antagonising'
-                                ? 'bg-red-950/40 text-red-200'
-                                : entry.responseType === 'invalidating-enabling'
-                                  ? 'bg-orange-950/40 text-orange-200'
-                                  : entry.responseType === 'partial'
-                                    ? 'bg-amber-950/40 text-amber-200'
-                                    : 'bg-teal-950/40 text-teal-200'
-                            }`}
-                          >
-                            {entry.responseType}
-                          </span>
+
+                          {/* Instinct Analysis (what their response revealed) */}
+                          {entry.instinctAnalysis && (
+                            <div className="text-xs space-y-1 pl-3 border-l-2 border-drift/40">
+                              <p className="font-medium text-drift/80">Your Instinct Revealed:</p>
+                              <p className="text-drift/70">
+                                <span className="font-medium">{entry.instinctAnalysis.primaryType}</span>
+                                {' '}
+                                <span className="text-drift/60">({entry.instinctAnalysis.confidence} confidence)</span>
+                              </p>
+                              {entry.instinctAnalysis.keywords.length > 0 && (
+                                <p className="text-drift/60">
+                                  Keywords: {entry.instinctAnalysis.keywords.slice(0, 3).join(', ')}
+                                  {entry.instinctAnalysis.keywords.length > 3
+                                    ? ` +${entry.instinctAnalysis.keywords.length - 3}`
+                                    : ''}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Phase 2 Selection (which tier they chose) */}
+                          <div className="flex items-center justify-between gap-3 pt-1">
+                            <span className="text-xs text-drift/60">You Selected:</span>
+                            <span
+                              className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded whitespace-nowrap ${
+                                getBadgeColor(entry.responseType)
+                              }`}
+                            >
+                              {entry.responseType}
+                            </span>
+                          </div>
+
+                          {/* Behavioral Commitment */}
+                          <div className="text-xs text-drift/60 pt-2 border-t border-drift/20">
+                            <p className="font-medium text-parchment mb-1">Commitment:</p>
+                            <p className="italic">{entry.behavioralCommitment}</p>
+                          </div>
                         </div>
-                        <div className="text-xs text-drift/60 pt-2 border-t border-drift/20">
-                          <p className="font-medium text-parchment mb-1">Commitment:</p>
-                          <p className="italic">{entry.behavioralCommitment}</p>
-                        </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                 </div>
               </motion.div>
 

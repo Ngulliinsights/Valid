@@ -167,6 +167,13 @@ export default function PracticeSessionComplete({
       category: scenario.category,
       complexity: scenario.complexity,
       instinctiveResponse,
+      instinctAnalysis: instinctAnalysis
+        ? {
+            primaryType: instinctAnalysis.primaryType,
+            confidence: instinctAnalysis.confidence,
+            keywords: instinctAnalysis.keywords,
+          }
+        : undefined,
       responseType,
       behavioralCommitment: commitment,
       completedAt: Date.now(),
