@@ -28,11 +28,9 @@ export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null)
   const stateRef = useRef<CursorState>({ isHovering: false, isPressed: false })
   const posRef = useRef({ x: -100, y: -100, targetX: -100, targetY: -100 })
-  const rafRef = useRef<number>(0)
+  const rafRef = useRef<number | null>(null)
 
-  // React state only for visibility / initial touch check — not for per-frame updates
   const [visible, setVisible] = useState(false)
-  const [cursorState, setCursorState] = useState<CursorState>({ isHovering: false, isPressed: false })
 
   useEffect(() => {
     if (!isPointerFine()) return
@@ -42,47 +40,64 @@ export default function CustomCursor() {
 
     setVisible(true)
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
-    const updateState = (next: Partial<CursorState>) => {
-      stateRef.current = { ...stateRef.current, ...next }
-      setCursorState({ ...stateRef.current })
-    }
-
     const getSize = () => (stateRef.current.isHovering ? 56 : 14)
+    const getScale = () => (stateRef.current.isPressed ? 0.8 : 1)
+    const getBorderColor = () => (stateRef.current.isHovering ? 'var(--tide)' : 'var(--parchment)')
 
-    // ── Handlers ─────────────────────────────────────────────────────────────
+    const updateCursorAppearance = () => {
+      const size = getSize()
+      const scale = getScale()
 
-    const onMouseMove = (e: MouseEvent) => {
-      posRef.current.targetX = e.clientX
-      posRef.current.targetY = e.clientY
+      cursor.style.width = `${size}px`
+      cursor.style.height = `${size}px`
+      cursor.style.borderColor = getBorderColor()
+      cursor.style.transition = [
+        'width var(--duration-medium) ease',
+        'height var(--duration-medium) ease',
+        'border-color var(--duration-medium) ease',
+        'transform 80ms ease',
+      ].join(', ')
+      cursor.style.willChange = 'transform'
+      cursor.style.transform = `translate(${posRef.current.x - size / 2}px, ${posRef.current.y - size / 2}px) scale(${scale})`
     }
 
-    const onMouseOver = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest(HOVER_SELECTORS)) {
-        updateState({ isHovering: true })
+    const onMouseMove = (event: MouseEvent) => {
+      posRef.current.targetX = event.clientX
+      posRef.current.targetY = event.clientY
+    }
+
+    const onMouseOver = (event: MouseEvent) => {
+      if ((event.target as HTMLElement).closest(HOVER_SELECTORS)) {
+        stateRef.current.isHovering = true
+        updateCursorAppearance()
       }
     }
 
-    const onMouseOut = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest(HOVER_SELECTORS)) {
-        updateState({ isHovering: false })
+    const onMouseOut = (event: MouseEvent) => {
+      if ((event.target as HTMLElement).closest(HOVER_SELECTORS)) {
+        stateRef.current.isHovering = false
+        updateCursorAppearance()
       }
     }
 
-    const onMouseDown = () => updateState({ isPressed: true })
-    const onMouseUp   = () => updateState({ isPressed: false })
+    const onMouseDown = () => {
+      stateRef.current.isPressed = true
+      updateCursorAppearance()
+    }
 
-    // ── RAF loop ─────────────────────────────────────────────────────────────
+    const onMouseUp = () => {
+      stateRef.current.isPressed = false
+      updateCursorAppearance()
+    }
 
     const animate = () => {
       const pos = posRef.current
       pos.x = lerp(pos.x, pos.targetX, LERP_FACTOR)
       pos.y = lerp(pos.y, pos.targetY, LERP_FACTOR)
 
-      const half = getSize() / 2
-      cursor.style.transform = `translate(${pos.x - half}px, ${pos.y - half}px)`
-
+      const size = getSize()
+      const scale = getScale()
+      cursor.style.transform = `translate(${pos.x - size / 2}px, ${pos.y - size / 2}px) scale(${scale})`
       rafRef.current = requestAnimationFrame(animate)
     }
 
@@ -95,20 +110,16 @@ export default function CustomCursor() {
     document.addEventListener('mouseup', onMouseUp)
 
     return () => {
-      cancelAnimationFrame(rafRef.current)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
       window.removeEventListener('mousemove', onMouseMove)
       document.removeEventListener('mouseover', onMouseOver)
       document.removeEventListener('mouseout', onMouseOut)
       document.removeEventListener('mousedown', onMouseDown)
       document.removeEventListener('mouseup', onMouseUp)
     }
-    // No deps — effect runs once; inner state accessed via refs
   }, [])
 
   if (!visible) return null
-
-  const { isHovering, isPressed } = cursorState
-  const size = isHovering ? 56 : 14
 
   return (
     <div
@@ -116,19 +127,11 @@ export default function CustomCursor() {
       aria-hidden="true"
       className="fixed top-0 left-0 pointer-events-none z-[9999] mix-blend-difference"
       style={{
-        width: size,
-        height: size,
+        width: '14px',
+        height: '14px',
         borderRadius: '50%',
-        border: `1px solid ${isHovering ? 'var(--tide)' : 'var(--parchment)'}`,
+        border: '1px solid var(--parchment)',
         backgroundColor: 'transparent',
-        scale: isPressed ? '0.8' : '1',
-        transition: [
-          'width var(--duration-medium) ease',
-          'height var(--duration-medium) ease',
-          'border-color var(--duration-medium) ease',
-          'scale 80ms ease',
-        ].join(', '),
-        willChange: 'transform',
       }}
     />
   )

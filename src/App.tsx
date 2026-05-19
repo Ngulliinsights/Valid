@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useReducer } from 'react'
 
 import LandingSection          from './sections/LandingSection'
 import ScenarioSelection       from './sections/ScenarioSelection'
@@ -35,42 +35,80 @@ export type PracticePhase =
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
-const VERTICAL_KEYS: VerticalKey[]     = ['anxiety', 'depression', 'altered-perception']
+const VERTICAL_KEYS: VerticalKey[]       = ['anxiety', 'depression', 'altered-perception']
 const COMPLEXITY_POOL: ComplexityLevel[] = ['Intermediate', 'Advanced']
 
-export default function App() {
-  const [phase,                setPhase]                = useState<PracticePhase>('landing')
-  const [scenarioSelection,    setScenarioSelection]    = useState<ScenarioSelectionState | null>(null)
-  const [instinctText,         setInstinctText]         = useState('')
-  const [selectedResponseType, setSelectedResponseType] = useState<ResponseType | null>(null)
-  const [instinctAnalysis,     setInstinctAnalysis]     = useState<AnalysisResult | null>(null)
+interface SessionState {
+  phase: PracticePhase
+  scenarioSelection: ScenarioSelectionState | null
+  instinctText: string
+  selectedResponseType: ResponseType | null
+  instinctAnalysis: AnalysisResult | null
+}
 
-  // Scroll-reset on every phase transition.
-  const goToPhase = useCallback((next: PracticePhase) => {
-    setPhase(next)
+type SessionAction =
+  | { type: 'reset' }
+  | { type: 'setPhase'; phase: PracticePhase }
+  | { type: 'setScenarioSelection'; selection: ScenarioSelectionState | null }
+  | { type: 'setInstinctText'; text: string }
+  | { type: 'setSelectedResponseType'; responseType: ResponseType }
+  | { type: 'setInstinctAnalysis'; analysis: AnalysisResult | null }
+
+const initialState: SessionState = {
+  phase: 'landing',
+  scenarioSelection: null,
+  instinctText: '',
+  selectedResponseType: null,
+  instinctAnalysis: null,
+}
+
+function sessionReducer(state: SessionState, action: SessionAction): SessionState {
+  switch (action.type) {
+    case 'reset':
+      return initialState
+    case 'setPhase':
+      return { ...state, phase: action.phase }
+    case 'setScenarioSelection':
+      return { ...state, scenarioSelection: action.selection }
+    case 'setInstinctText':
+      return { ...state, instinctText: action.text }
+    case 'setSelectedResponseType':
+      return { ...state, selectedResponseType: action.responseType }
+    case 'setInstinctAnalysis':
+      return { ...state, instinctAnalysis: action.analysis }
+    default:
+      return state
+  }
+}
+
+export default function App() {
+  const [state, dispatch] = useReducer(sessionReducer, initialState)
+  const { phase, scenarioSelection, instinctText, selectedResponseType, instinctAnalysis } = state
+
+  const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
 
-  // Full session reset — shared by "Play again" and "Return to start".
-  const handleReset = useCallback(() => {
-    setInstinctText('')
-    setScenarioSelection(null)
-    setSelectedResponseType(null)
-    setInstinctAnalysis(null)
-    goToPhase('landing')
-  }, [goToPhase])
+  const goToPhase = useCallback(
+    (next: PracticePhase) => {
+      dispatch({ type: 'setPhase', phase: next })
+      scrollToTop()
+    },
+    [scrollToTop],
+  )
 
-  // Analyse the instinct text once, on leaving Phase 1, so Phase 2 and
-  // Phase 3 both receive the same result without re-computing it.
+  const handleReset = useCallback(() => {
+    dispatch({ type: 'reset' })
+    scrollToTop()
+  }, [scrollToTop])
+
   const handlePhase1Continue = useCallback(() => {
-    setInstinctAnalysis(analyzeResponseType(instinctText))
+    dispatch({ type: 'setInstinctAnalysis', analysis: analyzeResponseType(instinctText) })
     goToPhase('phase2')
   }, [instinctText, goToPhase])
 
-  // Derive scenario data from the current selection. Memoised so these
-  // lookups don't re-run on every unrelated state update.
   const { activeScenario, verticalKey, verticalLabel } = useMemo(() => {
-    const vKey  = scenarioSelection?.vertical   ?? 'depression'
+    const vKey = scenarioSelection?.vertical ?? 'depression'
     const cLevel = scenarioSelection?.complexity ?? 'Intermediate'
     const complexityKey: 'intermediate' | 'advanced' =
       cLevel === 'Advanced' || cLevel === 'Master' ? 'advanced' : 'intermediate'
@@ -78,12 +116,11 @@ export default function App() {
     const category = SCENARIOS[vKey] ?? SCENARIOS['depression']
     return {
       activeScenario: category[complexityKey] ?? category['intermediate'],
-      verticalKey:    vKey,
-      verticalLabel:  VERTICAL_LABELS[vKey] ?? 'General Practice',
+      verticalKey: vKey,
+      verticalLabel: VERTICAL_LABELS[vKey] ?? 'General Practice',
     }
   }, [scenarioSelection])
 
-  // Derive the response tier card from the player's confirmed selection.
   const activeResponseType: ResponseType = selectedResponseType ?? 'partial'
   const selectedResponseTier = useMemo(
     () => activeScenario.responses[RESPONSE_TIER_MAP[activeResponseType]],
@@ -102,12 +139,12 @@ export default function App() {
         <ScenarioSelection
           onReturnToHome={handleReset}
           onBegin={(selection) => {
-            let finalSelection = { ...selection }
+            const finalSelection = { ...selection }
             if (selection.mode === 'random') {
-              finalSelection.vertical   = VERTICAL_KEYS[Math.floor(Math.random() * VERTICAL_KEYS.length)]
+              finalSelection.vertical = VERTICAL_KEYS[Math.floor(Math.random() * VERTICAL_KEYS.length)]
               finalSelection.complexity = COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)]
             }
-            setScenarioSelection(finalSelection)
+            dispatch({ type: 'setScenarioSelection', selection: finalSelection })
             goToPhase('phase1')
           }}
         />
@@ -117,7 +154,7 @@ export default function App() {
         <Phase1Diagnostic
           scenario={activeScenario}
           instinctText={instinctText}
-          onInstinctChange={setInstinctText}
+          onInstinctChange={(text) => dispatch({ type: 'setInstinctText', text })}
           onContinue={handlePhase1Continue}
           onReturnToHome={handleReset}
         />
@@ -129,7 +166,7 @@ export default function App() {
           instinctText={instinctText}
           instinctAnalysis={instinctAnalysis ?? undefined}
           onResponseTypeSelect={(type) => {
-            setSelectedResponseType(type)
+            dispatch({ type: 'setSelectedResponseType', responseType: type })
             goToPhase('phase3')
           }}
           onReturnToHome={handleReset}
@@ -159,9 +196,7 @@ export default function App() {
         />
       )}
 
-      {phase === 'history' && (
-        <PracticeHistory onReturn={handleReset} />
-      )}
+      {phase === 'history' && <PracticeHistory onReturn={handleReset} />}
     </div>
   )
 }
