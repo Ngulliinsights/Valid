@@ -48,7 +48,7 @@ const FONT_QUOTE: React.CSSProperties = {
 const INNER_FRAME: React.CSSProperties = {
   position: 'absolute',
   inset: 5,
-  borderRadius: 6,
+  borderRadius: 12,
   border: '0.5px solid rgba(242,237,223,0.06)',
   pointerEvents: 'none',
   zIndex: 2,
@@ -111,7 +111,7 @@ function BlindCardItem({
           left: 8,
           right: 8,
           height: 8,
-          borderRadius: '0 0 10px 10px',
+          borderRadius: '0 0 16px 16px',
           background: 'rgba(0,0,0,0.5)',
           filter: 'blur(3px)',
         }}
@@ -120,7 +120,7 @@ function BlindCardItem({
       {/* Card surface */}
       <div
         style={{
-          borderRadius: 10,
+          borderRadius: 16,
           border: '1px solid rgba(242,237,223,0.15)',
           backgroundColor: '#1C1A18',
           boxShadow: '0 8px 32px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.35)',
@@ -260,7 +260,7 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
   return (
     <article
       style={{
-        borderRadius: 12,
+        borderRadius: 16,
         border: `1px solid ${style.accentColor}45`,
         backgroundColor: '#1C1A18',
         boxShadow: `0 0 0 1px ${style.accentColor}10, 0 20px 60px rgba(0,0,0,0.75), 0 6px 16px rgba(0,0,0,0.4)`,
@@ -268,7 +268,7 @@ function SelectedTierCard({ tierKey, scenario }: { tierKey: TierKey; scenario: S
         position: 'relative',
       }}
     >
-      <div aria-hidden="true" style={{ ...INNER_FRAME, borderRadius: 8, border: `0.5px solid ${style.accentColor}18` }} />
+      <div aria-hidden="true" style={{ ...INNER_FRAME, borderRadius: 12, border: `0.5px solid ${style.accentColor}18` }} />
 
       {/* Art zone */}
       <div style={{ position: 'relative', height: 160, overflow: 'hidden', backgroundColor: '#121010' }}>
@@ -408,7 +408,7 @@ function ContrastCard({
     <article
       aria-pressed={isSelected}
       style={{
-        borderRadius: 10,
+        borderRadius: 16,
         border: isSelected ? `1px solid ${style.accentColor}45` : `1px solid ${dimColor('0.07')}`,
         backgroundColor: isSelected ? '#1C1A18' : '#171512',
         boxShadow: isSelected ? '0 8px 24px rgba(0,0,0,0.5)' : 'none',

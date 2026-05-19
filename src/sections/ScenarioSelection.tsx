@@ -446,7 +446,7 @@ export default function ScenarioSelection({ onBegin, onReturnToHome }: ScenarioS
                 onClick={handleTargeted}
                 data-cursor-hover
                 type="button"
-                className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98] shrink-0"
+                className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98] shrink-0 rounded-xl"
               >
                 BEGIN SESSION
                 <span

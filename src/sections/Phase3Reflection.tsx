@@ -59,7 +59,7 @@ export default function Phase3Reflection({ scenario, onContinue, onReturnToHome 
             initial="hidden"
             animate="visible"
             transition={fadeUpTransition(0.2)}
-            className="bg-teal-950/15 border border-tide/40 p-8 space-y-4"
+            className="bg-teal-950/15 border border-tide/40 p-8 space-y-4 rounded-2xl"
           >
             <p className="label-text text-tide">REFLECTION QUESTION</p>
             <blockquote className="font-cormorant italic text-parchment text-xl leading-relaxed">
@@ -110,7 +110,7 @@ export default function Phase3Reflection({ scenario, onContinue, onReturnToHome 
             <button
               onClick={onContinue}
               data-cursor-hover
-              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl"
             >
               COMPLETE PRACTICE SESSION
               <span

@@ -34,7 +34,7 @@ function useCountdown(seconds: number) {
 function CardBack() {
   return (
     <div
-      className="absolute inset-0 bg-ground card-back-pattern flex items-center justify-center"
+      className="absolute inset-0 bg-ground card-back-pattern flex items-center justify-center rounded-2xl border border-drift/10"
       style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
       aria-hidden="true"
     >
@@ -180,14 +180,14 @@ export default function Phase1Diagnostic({
               <motion.div
                 role="region"
                 aria-label={isFlipped ? 'Card back' : 'Scenario card'}
-                className="relative bg-parchment shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
+                className="relative bg-parchment shadow-[0_12px_40px_rgba(0,0,0,0.5)] rounded-2xl"
                 style={{ minHeight: 480, transformStyle: 'preserve-3d' }}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
                 transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
               >
                 {/* Front face */}
                 <div
-                  className="absolute inset-0 p-7 flex flex-col"
+                  className="absolute inset-0 p-7 flex flex-col rounded-2xl overflow-hidden border border-ground/5"
                   style={{ backfaceVisibility: 'hidden' }}
                 >
                   {/* Tide accent bar for Professional */}
@@ -243,7 +243,7 @@ export default function Phase1Diagnostic({
               <p className="font-dm text-xs text-drift/40 mb-3 leading-relaxed">
                 Write exactly what you would say to this patient in the next 60 seconds. Unfiltered.
               </p>
-              <div className="relative">
+              <div className="relative rounded-xl overflow-hidden border border-drift/15">
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-ember/50" aria-hidden="true" />
                 <textarea
                   id="instinct-input"
@@ -269,10 +269,10 @@ export default function Phase1Diagnostic({
 
             {/* Clinical reminder */}
             <div
-              className="p-4"
+              className="p-4 rounded-xl"
               style={{
                 backgroundColor: 'rgba(61, 107, 101, 0.06)',
-                borderLeft: '2px solid rgba(61, 107, 101, 0.25)',
+                borderLeft: '3px solid rgba(61, 107, 101, 0.35)',
               }}
             >
               <span className="label-text text-tide/70 block mb-2">REMINDER</span>
@@ -287,12 +287,12 @@ export default function Phase1Diagnostic({
               disabled={!instinctText.trim()}
               data-cursor-hover
               className={[
-                'group w-full inline-flex items-center justify-center gap-3 font-dm font-medium text-sm uppercase tracking-[0.14em] px-8 py-4 transition-all duration-200',
+                'group w-full inline-flex items-center justify-center gap-3 font-dm font-medium text-sm uppercase tracking-[0.14em] px-8 py-4 transition-all duration-200 rounded-xl',
                 instinctText.trim()
                   ? 'bg-ember text-ground hover:brightness-110 active:scale-[0.98]'
                   : 'text-drift/35 cursor-not-allowed',
               ].join(' ')}
-              style={!instinctText.trim() ? { border: '1px solid rgba(154, 148, 136, 0.18)', backgroundColor: 'transparent' } : {}}
+              style={!instinctText.trim() ? { border: '1px solid rgba(154, 148, 136, 0.18)', backgroundColor: 'transparent', borderRadius: '12px' } : {}}
             >
               REVEAL RESPONSE OPTIONS
               <span

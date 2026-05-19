@@ -27,7 +27,7 @@
     --input:  36  8% 57%;
     /* Focus ring → Ember */
     --ring:  37 65% 47%;
-    --radius: 0px;
+    --radius: 12px;
 
     /* Palette RGB aliases */
     --parchment-rgb: 242, 237, 223;
@@ -323,6 +323,7 @@
     background-color: rgba(154,148,136,0.04);
     border: 1px solid rgba(154,148,136,0.12);
     border-left: 3px solid rgba(154,148,136,0.15);
+    border-radius: var(--radius);
   }
 
   .vertical-dropdown-trigger-open {
@@ -334,6 +335,8 @@
     background-color: var(--color-ground, #1A1814);
     border: 1px solid rgba(154,148,136,0.3);
     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    border-radius: var(--radius);
+    overflow: hidden;
   }
 
   .vertical-dropdown-search-input-wrapper {
@@ -342,6 +345,7 @@
 
   .vertical-dropdown-search-input {
     border: 1px solid rgba(154,148,136,0.15);
+    border-radius: 8px;
   }
 
   .vertical-dropdown-option {
@@ -364,6 +368,7 @@
   .complexity-selector-button {
     background-color: rgba(154,148,136,0.04);
     border: 1px solid rgba(154,148,136,0.12);
+    border-radius: 8px;
   }
 
   .complexity-selector-button-active {
@@ -383,10 +388,12 @@
     background-color: rgba(154,148,136,0.05);
     border: 1px solid rgba(154,148,136,0.15);
     border-left: 3px solid rgba(154,148,136,0.3);
+    border-radius: var(--radius);
   }
 
   .complexity-selector-wrapper {
     background-color: rgba(154,148,136,0.03);
     border: 1px solid rgba(154,148,136,0.1);
+    border-radius: var(--radius);
   }
 }

@@ -84,7 +84,7 @@ function InstinctAnalysisBlock({ analysis }: { analysis: AnalysisResult }) {
 
   return (
     <div
-      className="p-6 rounded-sm space-y-3"
+      className="p-6 rounded-2xl space-y-3"
       style={{ backgroundColor: style.bg, borderLeft: style.borderLeft }}
     >
       <p className="font-dm text-xs uppercase tracking-[0.12em] text-ember font-medium">
@@ -232,7 +232,7 @@ export default function PracticeSessionComplete({
               initial="hidden"
               animate="visible"
               transition={fadeUpTransition(0.2)}
-              className="space-y-3 bg-ground border border-drift/20 p-6"
+              className="space-y-3 bg-ground border border-drift/20 p-6 rounded-2xl"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="label-text text-drift/60">YOUR INSTINCTIVE RESPONSE</span>
@@ -251,7 +251,7 @@ export default function PracticeSessionComplete({
               initial="hidden"
               animate="visible"
               transition={fadeUpTransition(0.3)}
-              className="space-y-3 bg-teal-950/15 border border-tide/40 p-6"
+              className="space-y-3 bg-teal-950/15 border border-tide/40 p-6 rounded-2xl"
             >
               <span className="label-text text-tide">VALIDATING RESPONSE</span>
               <p className="text-parchment/90 leading-relaxed italic">{selectedResponseTier.text}</p>
@@ -272,7 +272,7 @@ export default function PracticeSessionComplete({
             initial="hidden"
             animate="visible"
             transition={fadeUpTransition(0.4)}
-            className="bg-amber-950/10 border border-amber-900/30 p-6 space-y-3"
+            className="bg-amber-950/10 border border-amber-900/30 p-6 space-y-3 rounded-2xl"
           >
             <h3 className="font-medium text-parchment uppercase tracking-wide text-sm">
               What the validating response does differently
@@ -307,7 +307,7 @@ export default function PracticeSessionComplete({
                   if (commitmentError && e.target.value.trim()) setCommitmentError(false)
                 }}
                 placeholder="E.g., 'I will acknowledge the emotional experience first, before moving to safety assessment.' or 'I will resist the urge to correct the belief and instead validate the fear beneath it.'"
-                className={`w-full bg-ground border text-parchment placeholder-drift/40 p-4 font-dm text-sm focus:outline-none focus:ring-1 resize-none h-[116px] transition-colors ${
+                className={`w-full bg-ground border text-parchment placeholder-drift/40 p-4 font-dm text-sm focus:outline-none focus:ring-1 resize-none h-[116px] transition-colors rounded-xl ${
                   commitmentError
                     ? 'border-red-500/60 focus:border-red-400 focus:ring-red-400/30'
                     : 'border-drift/30 focus:border-ember focus:ring-ember'
@@ -326,9 +326,9 @@ export default function PracticeSessionComplete({
               initial="hidden"
               animate="visible"
               transition={fadeUpTransition(0.55)}
-              className="hidden md:flex md:col-span-5 flex-col bg-ground border border-drift/20 p-4 justify-between"
+              className="hidden md:flex md:col-span-5 flex-col bg-ground border border-drift/20 p-4 justify-between rounded-2xl"
             >
-              <div className="overflow-hidden border border-parchment/5 bg-ground/50 flex-1 flex items-center justify-center">
+              <div className="overflow-hidden border border-parchment/5 bg-ground/50 flex-1 flex items-center justify-center rounded-xl">
                 <img 
                   src={reflectionImage} 
                   alt="Ambient reflection art: The space between knowing and responding" 
@@ -357,7 +357,7 @@ export default function PracticeSessionComplete({
               disabled={saved}
               data-cursor-hover
               type="button"
-              className="flex-1 bg-tide text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98]"
+              className="flex-1 bg-tide text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] rounded-xl"
             >
               {saved ? '✓ Saved to Journal' : 'Save to Practice Journal'}
             </button>
@@ -366,7 +366,7 @@ export default function PracticeSessionComplete({
               onClick={onReviewHistory}
               data-cursor-hover
               type="button"
-              className="flex-1 border border-drift/40 text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:bg-drift/10 active:scale-[0.98]"
+              className="flex-1 border border-drift/40 text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:bg-drift/10 active:scale-[0.98] rounded-xl"
             >
               View History
             </button>
@@ -375,7 +375,7 @@ export default function PracticeSessionComplete({
               onClick={onPlayAnother}
               data-cursor-hover
               type="button"
-              className="flex-1 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+              className="flex-1 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl"
             >
               Practice Another
             </button>

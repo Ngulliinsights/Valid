@@ -160,25 +160,25 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                 transition={fadeUpTransition(0.2)}
                 className="grid md:grid-cols-4 gap-4"
               >
-                <div className="bg-ground border border-drift/20 p-4 space-y-1">
+                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
                   <p className="label-text text-drift/60 text-xs">TOTAL SCENARIOS</p>
                   <p className="font-cormorant text-parchment text-2xl font-semibold">
                     {pattern.totalAttempts}
                   </p>
                 </div>
-                <div className="bg-ground border border-drift/20 p-4 space-y-1">
+                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
                   <p className="label-text text-drift/60 text-xs">CE HOURS EARNED</p>
                   <p className="font-cormorant text-parchment text-2xl font-semibold">
                     {ceHours.toFixed(2)}
                   </p>
                 </div>
-                <div className="bg-ground border border-drift/20 p-4 space-y-1">
+                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
                   <p className="label-text text-drift/60 text-xs">VALIDATING RESPONSES</p>
                   <p className="font-cormorant text-tide text-2xl font-semibold">
                     {validatingRate}%
                   </p>
                 </div>
-                <div className="bg-ground border border-drift/20 p-4 space-y-1">
+                <div className="bg-ground border border-drift/20 p-4 space-y-1 rounded-xl">
                   <p className="label-text text-drift/60 text-xs">STRONGEST AREA</p>
                   <p className="font-cormorant text-parchment text-sm font-semibold">
                     {pattern.strongestCategory ?? '—'}
@@ -192,7 +192,7 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                 initial="hidden"
                 animate="visible"
                 transition={fadeUpTransition(0.3)}
-                className="bg-ground border border-drift/20 p-6 space-y-4"
+                className="bg-ground border border-drift/20 p-6 space-y-4 rounded-2xl"
               >
                 <h3 className="font-medium text-parchment uppercase tracking-wide text-sm">
                   Response Pattern
@@ -210,9 +210,9 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                             <span className="text-sm text-drift/70">{label}</span>
                             <span className={`${textClass} font-medium`}>{count}</span>
                           </div>
-                          <div className="h-2 bg-drift/20 overflow-hidden">
+                          <div className="h-2 bg-drift/20 overflow-hidden rounded-full">
                             <div
-                              className={`h-full ${barClass} transition-all duration-500`}
+                              className={`h-full ${barClass} transition-all duration-500 rounded-full`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -257,7 +257,7 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                       return (
                         <div
                           key={entry.id}
-                          className="bg-ground border border-drift/20 p-4 space-y-3"
+                          className="bg-ground border border-drift/20 p-4 space-y-3 rounded-xl"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div>
@@ -294,7 +294,7 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                           <div className="flex items-center justify-between gap-3 pt-1">
                             <span className="text-xs text-drift/60">You Selected:</span>
                             <span
-                              className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded whitespace-nowrap ${
+                              className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded-md whitespace-nowrap ${
                                 getBadgeColor(entry.responseType)
                               }`}
                             >
@@ -324,14 +324,14 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                 <button
                   onClick={handleExport}
                   data-cursor-hover
-                  className="flex-1 border border-drift/40 text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:bg-drift/10 active:scale-[0.98]"
+                  className="flex-1 border border-drift/40 text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:bg-drift/10 active:scale-[0.98] rounded-xl"
                 >
                   Export as Document
                 </button>
                 <button
                   onClick={onReturn}
                   data-cursor-hover
-                  className="flex-1 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+                  className="flex-1 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl"
                 >
                   Return
                 </button>

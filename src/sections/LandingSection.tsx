@@ -140,7 +140,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
             <button
               onClick={onBegin}
               data-cursor-hover
-              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl"
             >
               BEGIN SESSION
               <span
@@ -189,8 +189,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
             />
             
             {/* Tactile picture frame with drop shadow */}
-            <div className="relative bg-ground border border-parchment/10 p-4 shadow-[0_28px_60px_-15px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:border-ember/25 group-hover:shadow-[0_36px_72px_-12px_rgba(196,136,42,0.15)]">
-              <div className="overflow-hidden border border-parchment/5 bg-ground/50">
+            <div className="relative bg-ground border border-parchment/10 p-4 shadow-[0_28px_60px_-15px_rgba(0,0,0,0.8)] rounded-2xl transition-all duration-500 group-hover:border-ember/25 group-hover:shadow-[0_36px_72px_-12px_rgba(196,136,42,0.15)]">
+              <div className="overflow-hidden border border-parchment/5 bg-ground/50 rounded-xl">
                 <img 
                   src={cardImage} 
                   alt="VALID physical clinical scenario card preview" 
