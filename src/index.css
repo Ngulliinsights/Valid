@@ -173,6 +173,31 @@
     letter-spacing: 0.15em;
   }
 
+  .landing-hero-heading {
+    font-size: clamp(54px, 8vw, 84px);
+  }
+
+  .landing-hero-accent {
+    background: linear-gradient(90deg, #C4882A 0%, #E0A84A 50%, #C4882A 100%);
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: sweep 5s ease-in-out infinite;
+  }
+
+  .landing-vertical-rule {
+    background: linear-gradient(to bottom, transparent, rgba(var(--ember-rgb), 0.25), transparent);
+  }
+
+  @keyframes sweep {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
   .scenario-text {
     @apply font-cormorant italic;
     font-size:   1.25rem;

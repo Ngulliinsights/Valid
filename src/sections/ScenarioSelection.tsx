@@ -100,8 +100,8 @@ function VerticalDropdown({
         data-cursor-hover
         type="button"
         aria-haspopup="listbox"
-        aria-expanded={isOpen}
-        aria-labelledby={`${labelId} ${triggerId}`}
+        aria-expanded={isOpen ? 'true' : 'false'}
+        aria-labelledby={labelId}
         className={`w-full text-left p-4 transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember vertical-dropdown-trigger ${isOpen ? 'vertical-dropdown-trigger-open' : ''}`}
       >
         <div className="flex items-center justify-between gap-3">
@@ -147,7 +147,7 @@ function VerticalDropdown({
             </div>
 
             {/* Options */}
-            <div className="max-h-64 overflow-y-auto">
+            <div role="group" className="max-h-64 overflow-y-auto">
               {filtered.length > 0 ? (
                 filtered.map((vertical) => {
                   const isSelected = selected === vertical.key
@@ -155,7 +155,7 @@ function VerticalDropdown({
                     <button
                       key={vertical.key}
                       role="option"
-                      aria-selected={isSelected}
+                      aria-selected={isSelected ? 'true' : 'false'}
                       onClick={() => {
                         onSelect(isSelected ? null : vertical.key)
                         close()

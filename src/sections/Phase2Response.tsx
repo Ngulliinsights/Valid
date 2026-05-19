@@ -381,7 +381,7 @@ const SelectedTierCard = memo(function SelectedTierCard({
         <button
           onClick={() => setMechanismOpen((p) => !p)}
           type="button"
-          aria-expanded={mechanismOpen}
+          aria-expanded={mechanismOpen ? 'true' : 'false'}
           style={{
             width: '100%',
             display: 'flex',
@@ -701,6 +701,11 @@ function BlindSelectionStage({
         <p className="font-dm text-sm text-drift max-w-xl leading-relaxed">
           Read each response carefully. Trust your clinical instinct. Select the one you would use
           in this moment.
+        </p>
+        <p className="font-dm text-xs text-drift/50 max-w-xl leading-relaxed">
+          In this exercise, the first card is usually invalidating and shuts down the feeling, the
+          second card partially acknowledges the anxiety while still fixing it, and the third card
+          aims to fully validate the emotion and create safety.
         </p>
       </motion.div>
 

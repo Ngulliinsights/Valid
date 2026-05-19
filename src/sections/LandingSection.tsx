@@ -12,14 +12,6 @@ const HERO_LINE1 = ['The', 'practiced']
 const HERO_LINE2 = ['response']
 const HERO_LINE3 = ['that', 'holds.']
 
-const emberStyle: React.CSSProperties = {
-  background: 'linear-gradient(90deg, #C4882A 0%, #E0A84A 50%, #C4882A 100%)',
-  backgroundSize: '200%',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  animation: 'sweep 5s ease-in-out infinite',
-}
-
 const STATS = [
   { value: '60+',   label: 'CLINICAL SCENARIOS' },
   { value: '3',     label: 'PHASE METHODOLOGY' },
@@ -28,11 +20,11 @@ const STATS = [
 
 export default function LandingSection({ onBegin }: LandingSectionProps) {
   return (
-    <section className="relative min-h-[100dvh] min-h-screen flex flex-col justify-center rule-matrix-bg overflow-hidden grain-overlay">
+    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden grain-overlay">
       <EchoField />
       <ThresholdPattern />
       {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between relative z-[10]">
+      <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between z-[10]">
         <ValidLogo size="md" color="parchment" showTagline />
         <motion.div
           initial={{ opacity: 0 }}
@@ -63,8 +55,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
 
           {/* Hero heading */}
           <h1
-            className="font-cormorant font-semibold text-parchment leading-[1.0] tracking-[-0.02em]"
-            style={{ fontSize: 'clamp(54px, 8vw, 84px)' }}
+            className="font-cormorant font-semibold text-parchment leading-[1.0] tracking-[-0.02em] landing-hero-heading"
           >
             {HERO_LINE1.map((word, i) => (
               <motion.span
@@ -101,7 +92,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
               return (
                 <motion.span
                   key={`l3-${i}`}
-                  className={['inline-block mr-[0.22em]', isAccent ? 'italic' : ''].join(' ')}
+                  className={['inline-block mr-[0.22em]', isAccent ? 'italic landing-hero-accent' : ''].join(' ')}
                   variants={blurIn}
                   initial="hidden"
                   animate="visible"
@@ -110,7 +101,6 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
                     delay: 0.18 + (HERO_LINE1.length + HERO_LINE2.length) * 0.07 + i * 0.07,
                     ease: 'easeOut',
                   }}
-                  style={isAccent ? emberStyle : undefined}
                 >
                   {word}
                 </motion.span>
@@ -215,8 +205,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
 
       {/* Vertical ember rule — decorative */}
       <div
-        className="absolute right-10 top-1/2 -translate-y-1/2 w-px h-32 hidden lg:block"
-        style={{ background: 'linear-gradient(to bottom, transparent, rgba(196,136,42,0.25), transparent)' }}
+        className="absolute right-10 top-1/2 -translate-y-1/2 w-px h-32 hidden lg:block landing-vertical-rule"
         aria-hidden="true"
       />
     </section>

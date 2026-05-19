@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React from 'react'
 import { TIER_STYLES, TIER_PIP_COUNT } from '../config/cardStyles'
 import type { TierKey } from '../config/cardStyles'
