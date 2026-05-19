@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface ValidLogoProps {
   size?: 'sm' | 'md' | 'lg'
   color?: 'parchment' | 'tide'

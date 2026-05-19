@@ -1,23 +1,27 @@
 import { useState, useCallback } from 'react'
 
-import LandingSection     from './sections/LandingSection'
-import CharacterSelection from './sections/CharacterSelection'
-import Phase1Diagnostic   from './sections/Phase1Diagnostic'
-import Phase2Response     from './sections/Phase2Response'
-import Phase3Reflection   from './sections/Phase3Reflection'
-import SessionComplete    from './sections/SessionComplete'
-import CustomCursor       from './components/CustomCursor'
+import LandingSection      from './sections/LandingSection'
+import CharacterSelection  from './sections/CharacterSelection'
+import Phase1Diagnostic    from './sections/Phase1Diagnostic'
+import Phase2Response      from './sections/Phase2Response'
+import Phase3Reflection    from './sections/Phase3Reflection'
+import PracticeSessionComplete from './sections/PracticeSessionComplete'
+import PracticeHistory     from './sections/PracticeHistory'
+import CustomCursor        from './components/CustomCursor'
+import { analyzeResponseType } from './lib/responseAnalysis'
+import type { AnalysisResult } from './lib/responseAnalysis'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 // Move to `src/types.ts` once the surface grows beyond a single scenario.
 
-export type GamePhase =
+export type PracticePhase =
   | 'landing'
   | 'character'
   | 'phase1'
   | 'phase2'
   | 'phase3'
   | 'complete'
+  | 'history'
 
 export interface Character {
   id:           string
@@ -144,12 +148,14 @@ export const SCORE_DATA: ScoreData = {
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [phase,             setPhase]             = useState<GamePhase>('landing')
-  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null)
-  const [instinctText,      setInstinctText]      = useState('')
+  const [phase,                setPhase]                = useState<PracticePhase>('landing')
+  const [selectedCharacter,    setSelectedCharacter]    = useState<Character | null>(null)
+  const [instinctText,         setInstinctText]         = useState('')
+  const [selectedResponseType, setSelectedResponseType] = useState<'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating' | null>(null)
+  const [instinctAnalysis,     setInstinctAnalysis]     = useState<AnalysisResult | null>(null)
 
   // Scroll-reset on every phase transition.
-  const goToPhase = useCallback((next: GamePhase) => {
+  const goToPhase = useCallback((next: PracticePhase) => {
     setPhase(next)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [])
@@ -158,12 +164,19 @@ export default function App() {
   const handleReset = useCallback(() => {
     setInstinctText('')
     setSelectedCharacter(null)
+    setSelectedResponseType(null)
+    setInstinctAnalysis(null)
     goToPhase('landing')
   }, [goToPhase])
 
+  // Determine response type from instinct
+  const getResponseType = (): 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating' => {
+    // For now, return 'partial' as placeholder — in real app, this would be determined
+    // by analyzing the instinctText against clinical criteria
+    return selectedResponseType || 'partial'
+  }
+
   return (
-    // bg-ground is defined in globals.css — one shade deeper than
-    // --background, creating a recessed stage for raised card surfaces.
     <div className="min-h-screen bg-ground">
       <CustomCursor />
 
@@ -193,23 +206,39 @@ export default function App() {
         <Phase2Response
           scenario={SCENARIO_DATA}
           instinctText={instinctText}
-          onContinue={() => goToPhase('phase3')}
+          instinctAnalysis={instinctAnalysis || analyzeResponseType(instinctText)}
+          onResponseTypeSelect={(type) => {
+            setSelectedResponseType(type)
+            // Store analysis for later use
+            setInstinctAnalysis(analyzeResponseType(instinctText))
+            goToPhase('phase3')
+          }}
         />
       )}
 
       {phase === 'phase3' && (
         <Phase3Reflection
           scenario={SCENARIO_DATA}
-          score={SCORE_DATA}
           onContinue={() => goToPhase('complete')}
         />
       )}
 
-      {phase === 'complete' && (
-        <SessionComplete
-          onPlayAgain={handleReset}
-          onReturn={handleReset}
+      {phase === 'complete' && selectedCharacter && (
+        <PracticeSessionComplete
+          scenario={SCENARIO_DATA}
+          characterId={selectedCharacter.id}
+          characterName={selectedCharacter.name}
+          instinctiveResponse={instinctText}
+          instinctAnalysis={instinctAnalysis}
+          responseType={getResponseType()}
+          selectedResponseTier={SCENARIO_DATA.responses[getResponseType() === 'validating' ? 'tier3' : getResponseType() === 'partial' ? 'tier2' : 'tier1']}
+          onPlayAnother={handleReset}
+          onReviewHistory={() => goToPhase('history')}
         />
+      )}
+
+      {phase === 'history' && (
+        <PracticeHistory onReturn={handleReset} />
       )}
     </div>
   )
