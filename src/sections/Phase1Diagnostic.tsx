@@ -34,20 +34,84 @@ function useCountdown(seconds: number) {
 function CardBack() {
   return (
     <div
-      className="absolute inset-0 bg-ground card-back-pattern flex items-center justify-center rounded-2xl border border-drift/10"
+      className="absolute inset-0 bg-ground flex items-center justify-center rounded-2xl border border-drift/10 overflow-hidden"
       style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
       aria-hidden="true"
     >
-      <div className="text-center opacity-20">
-        <svg width="52" height="78" viewBox="0 0 220 160" fill="none" className="mx-auto mb-4">
-          <path d="M 92 14 C 32 44, 32 116, 92 146 C 62 116, 62 44, 92 14 Z" fill="#F2EDDF" />
-          <path d="M 128 14 C 188 44, 188 116, 128 146 C 158 116, 158 44, 128 14 Z" fill="#F2EDDF" />
-          <circle cx="110" cy="38"  r="8.5" fill="#E8E0D0" />
-          <circle cx="110" cy="80"  r="11"  fill="#C4882A" />
-          <circle cx="110" cy="122" r="11"  fill="#7A9AAD" />
-        </svg>
-        <span className="font-cormorant font-semibold text-parchment text-xl tracking-[0.2em]">VALID</span>
-      </div>
+      <svg viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute inset-0 w-full h-full p-4 pointer-events-none">
+        {/* Intricate background starburst */}
+        <g stroke="rgba(242,237,223,0.03)" strokeWidth="0.5">
+          {Array.from({ length: 24 }).map((_, i) => {
+            const angle = (i * 360) / 24
+            const rad = (angle * Math.PI) / 180
+            const x = 200 + Math.cos(rad) * 300
+            const y = 240 + Math.sin(rad) * 300
+            return <line key={i} x1="200" y1="240" x2={x} y2={y} />
+          })}
+        </g>
+
+        {/* Concentric detail rings for backdrop */}
+        <g stroke="rgba(242,237,223,0.02)" strokeWidth="0.5">
+          {Array.from({ length: 8 }).map((_, r) => {
+            const radius = 50 + r * 30
+            return <circle key={r} cx="200" cy="240" r={radius} fill="none" />
+          })}
+        </g>
+
+        {/* Thin Gold Inner border */}
+        <rect x="20" y="20" width="360" height="440" rx="10" stroke="rgba(196,136,42,0.22)" strokeWidth="1" fill="none" />
+        <rect x="25" y="25" width="350" height="430" rx="8" stroke="rgba(242,237,223,0.06)" strokeWidth="0.5" fill="none" />
+
+        {/* Intricate Corner Brackets */}
+        <g stroke="rgba(196,136,42,0.4)" strokeWidth="1">
+          <path d="M 32 32 L 48 32 M 32 32 L 32 48" />
+          <path d="M 368 32 L 352 32 M 368 32 L 368 48" />
+          <path d="M 32 448 L 48 448 M 32 448 L 32 432" />
+          <path d="M 368 448 L 352 448 M 368 448 L 368 432" />
+        </g>
+
+        {/* Detailed Astrological Mandala */}
+        <g stroke="rgba(242,237,223,0.08)" strokeWidth="0.75">
+          <circle cx="200" cy="240" r="105" strokeDasharray="3 3" />
+          <circle cx="200" cy="240" r="95" />
+          <circle cx="200" cy="240" r="85" stroke="rgba(196,136,42,0.18)" />
+        </g>
+
+        {/* 12-point star bloom */}
+        <g stroke="rgba(196,136,42,0.25)" strokeWidth="0.75">
+          {Array.from({ length: 12 }).map((_, i) => {
+            const a1 = (i * Math.PI * 2) / 12
+            const a2 = ((i + 5) * Math.PI * 2) / 12
+            const x1 = 200 + Math.cos(a1) * 95
+            const y1 = 240 + Math.sin(a1) * 95
+            const x2 = 200 + Math.cos(a2) * 95
+            const y2 = 240 + Math.sin(a2) * 95
+            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} />
+          })}
+        </g>
+
+        {/* Orbital outer pips */}
+        <g fill="rgba(242,237,223,0.3)">
+          {Array.from({ length: 12 }).map((_, i) => {
+            const a = (i * Math.PI * 2) / 12
+            const x = 200 + Math.cos(a) * 95
+            const y = 240 + Math.sin(a) * 95
+            return <circle key={i} cx={x} cy={y} r="2" />
+          })}
+        </g>
+
+        {/* Core central branding */}
+        <g transform="translate(90, 150) scale(1)">
+          <path d="M 92 14 C 32 44, 32 116, 92 146 C 62 116, 62 44, 92 14 Z" fill="rgba(242,237,223,0.3)" />
+          <path d="M 128 14 C 188 44, 188 116, 128 146 C 158 116, 158 44, 128 14 Z" fill="rgba(242,237,223,0.3)" />
+          <circle cx="110" cy="38"  r="8.5" fill="rgba(242,237,223,0.4)" />
+          <circle cx="110" cy="80"  r="11"  fill="rgba(196,136,42,0.6)" />
+          <circle cx="110" cy="122" r="11"  fill="rgba(122,154,173,0.5)" />
+        </g>
+        
+        {/* Label VALID watermark */}
+        <text x="200" y="325" textAnchor="middle" className="font-cormorant font-semibold text-parchment/60 text-xl tracking-[0.25em]" fill="#F2EDDF">VALID</text>
+      </svg>
     </div>
   )
 }
