@@ -1,4 +1,4 @@
-import { useState, useCallback, memo } from 'react'
+import { useState, useCallback, useMemo, memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import PhaseIndicator from '../components/PhaseIndicator'
@@ -45,7 +45,6 @@ const FONT_QUOTE: React.CSSProperties = {
   fontStyle: 'italic',
 }
 
-// Inset border overlay — applied as an absolute child so it never clips content
 const INNER_FRAME: React.CSSProperties = {
   position: 'absolute',
   inset: 5,
@@ -55,24 +54,48 @@ const INNER_FRAME: React.CSSProperties = {
   zIndex: 2,
 }
 
-// Framer variants shared across cards
-const CARD_HOVER = {
-  y: -10,
-  scale: 1.08,
-  zIndex: 50,
-  transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const },
+// ---------------------------------------------------------------------------
+// Shuffle — Fisher-Yates (Durstenfeld), returns new array, never mutates
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns a new shuffled copy of `items`.
+ * Uses Fisher-Yates (Durstenfeld) — O(n), unbiased.
+ */
+function fisherYatesShuffle<T>(items: readonly T[]): T[] {
+  const arr = [...items]
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0  // bitwise floor — slightly faster than Math.floor
+    // Destructure swap (no temp variable needed)
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
 }
+
+// ---------------------------------------------------------------------------
+// Motion variants
+// ---------------------------------------------------------------------------
+
+const CARD_HOVER_BASE = { y: -10, scale: 1.08, zIndex: 50 }
+const CARD_HOVER_TRANSITION = { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const }
+
+/** Subtle per-slot tilt: slot 0 → right, slot 1 → neutral, slot 2 → left */
+const TILT_BY_INDEX = [0.6, 0, -0.6] as const
+
+const REVEAL_VARIANTS = {
+  card:     { initial: { opacity: 0, scale: 0.95 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, delay: 0.1 } },
+  grid:     { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.2 } },
+  instinct: { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.3 } },
+  actions:  { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.4 } },
+} as const
 
 // ---------------------------------------------------------------------------
 // BlindCardItem — Stage 1: text visible, tier identity hidden
 // ---------------------------------------------------------------------------
 
-/** Subtle tilt: card 1 right, card 2 neutral, card 3 left */
-const TILT_BY_INDEX = [0.6, 0, -0.6] as const
-
 interface BlindCardItemProps {
   responseText: string
-  cardIndex: number   // 0-based
+  cardIndex: 0 | 1 | 2
   onClick: () => void
   delay: number
 }
@@ -83,7 +106,7 @@ const BlindCardItem = memo(function BlindCardItem({
   onClick,
   delay,
 }: BlindCardItemProps) {
-  const tilt = TILT_BY_INDEX[cardIndex] ?? 0
+  const tilt = TILT_BY_INDEX[cardIndex]
   const cardNumber = cardIndex + 1
 
   return (
@@ -91,7 +114,7 @@ const BlindCardItem = memo(function BlindCardItem({
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ ...CARD_HOVER, rotate: tilt }}
+      whileHover={{ ...CARD_HOVER_BASE, rotate: tilt, transition: CARD_HOVER_TRANSITION }}
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
       type="button"
@@ -276,6 +299,8 @@ const SelectedTierCard = memo(function SelectedTierCard({
   const style = TIER_STYLES[tierKey]
   const data = scenario.responses[tierKey]
 
+  const toggleMechanism = useCallback(() => setMechanismOpen((p) => !p), [])
+
   return (
     <article
       style={{
@@ -303,9 +328,7 @@ const SelectedTierCard = memo(function SelectedTierCard({
           aria-hidden="true"
           style={{
             position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
+            bottom: 0, left: 0, right: 0,
             height: 60,
             background: 'linear-gradient(to top, #1C1A18, transparent)',
           }}
@@ -313,8 +336,7 @@ const SelectedTierCard = memo(function SelectedTierCard({
         <div
           style={{
             position: 'absolute',
-            top: 10,
-            right: 10,
+            top: 10, right: 10,
             ...FONT_LABEL,
             color: style.accentColor,
             backgroundColor: style.tagBg,
@@ -331,26 +353,10 @@ const SelectedTierCard = memo(function SelectedTierCard({
 
       {/* Name banner */}
       <div style={{ padding: '12px 18px 10px', borderBottom: `0.5px solid ${style.accentColor}20` }}>
-        <div
-          style={{
-            ...FONT_LABEL,
-            fontSize: 9,
-            letterSpacing: '0.18em',
-            color: style.accentColor,
-            marginBottom: 3,
-          }}
-        >
+        <div style={{ ...FONT_LABEL, fontSize: 9, letterSpacing: '0.18em', color: style.accentColor, marginBottom: 3 }}>
           {data.label}
         </div>
-        <div
-          style={{
-            ...FONT_LABEL,
-            fontSize: 8,
-            letterSpacing: '0.12em',
-            color: style.accentColor,
-            opacity: 0.55,
-          }}
-        >
+        <div style={{ ...FONT_LABEL, fontSize: 8, letterSpacing: '0.12em', color: style.accentColor, opacity: 0.55 }}>
           {data.sublabel}
         </div>
       </div>
@@ -363,15 +369,7 @@ const SelectedTierCard = memo(function SelectedTierCard({
           borderBottom: `0.5px solid ${style.accentColor}15`,
         }}
       >
-        <blockquote
-          style={{
-            ...FONT_QUOTE,
-            fontSize: 19,
-            lineHeight: 1.8,
-            color: 'rgba(242,237,223,0.9)',
-            margin: 0,
-          }}
-        >
+        <blockquote style={{ ...FONT_QUOTE, fontSize: 19, lineHeight: 1.8, color: 'rgba(242,237,223,0.9)', margin: 0 }}>
           &ldquo;{data.text}&rdquo;
         </blockquote>
       </div>
@@ -379,9 +377,9 @@ const SelectedTierCard = memo(function SelectedTierCard({
       {/* Mechanism accordion */}
       <div style={{ padding: '12px 18px' }}>
         <button
-          onClick={() => setMechanismOpen((p) => !p)}
+          onClick={toggleMechanism}
           type="button"
-          aria-expanded={mechanismOpen ? 'true' : 'false'}
+          aria-expanded={mechanismOpen}
           style={{
             width: '100%',
             display: 'flex',
@@ -476,16 +474,24 @@ const ContrastCard = memo(function ContrastCard({
 }) {
   const style = TIER_STYLES[tierKey]
   const data = scenario.responses[tierKey]
-  const dim = (alpha: string) => `rgba(242,237,223,${alpha})`
+
+  // Pre-compute repeated alpha values
+  const dim = (a: string) => `rgba(242,237,223,${a})`
+  const borderColor  = isSelected ? `${style.accentColor}60` : dim('0.14')
+  const bgColor      = isSelected ? '#262320' : '#1E1C19'
+  const labelColor   = isSelected ? style.accentColor : dim('0.28')
+  const sublabColor  = isSelected ? style.accentColor : dim('0.18')
+  const quoteColor   = isSelected ? dim('0.88') : dim('0.38')
+  const footerBorder = isSelected ? `0.5px solid ${style.accentColor}18` : `0.5px solid ${dim('0.06')}`
+  const tagBg        = isSelected ? style.tagBg : 'rgba(242,237,223,0.03)'
+  const tagColor     = isSelected ? style.accentColor : dim('0.22')
 
   return (
     <article
       style={{
         borderRadius: 16,
-        border: isSelected
-          ? `1px solid ${style.accentColor}60`
-          : `1px solid ${dim('0.14')}`,
-        backgroundColor: isSelected ? '#262320' : '#1E1C19',
+        border: `1px solid ${borderColor}`,
+        backgroundColor: bgColor,
         boxShadow: isSelected ? '0 16px 40px rgba(0,0,0,0.65)' : 'none',
         overflow: 'hidden',
         opacity: isSelected ? 1 : 0.38,
@@ -494,9 +500,7 @@ const ContrastCard = memo(function ContrastCard({
       }}
     >
       {/* Art zone */}
-      <div
-        style={{ position: 'relative', height: 90, overflow: 'hidden', backgroundColor: '#111010' }}
-      >
+      <div style={{ position: 'relative', height: 90, overflow: 'hidden', backgroundColor: '#111010' }}>
         {isSelected ? (
           <TierArt tier={tierKey} />
         ) : (
@@ -514,9 +518,7 @@ const ContrastCard = memo(function ContrastCard({
           aria-hidden="true"
           style={{
             position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
+            bottom: 0, left: 0, right: 0,
             height: 30,
             background: `linear-gradient(to top, ${isSelected ? '#1C1A18' : '#171512'}, transparent)`,
           }}
@@ -526,10 +528,8 @@ const ContrastCard = memo(function ContrastCard({
             aria-hidden="true"
             style={{
               position: 'absolute',
-              top: 7,
-              right: 7,
-              width: 6,
-              height: 6,
+              top: 7, right: 7,
+              width: 6, height: 6,
               borderRadius: '50%',
               backgroundColor: style.accentColor,
             }}
@@ -543,27 +543,10 @@ const ContrastCard = memo(function ContrastCard({
 
       {/* Content */}
       <div style={{ padding: '10px 13px' }}>
-        <div
-          style={{
-            ...FONT_LABEL,
-            fontSize: 8,
-            letterSpacing: '0.14em',
-            color: isSelected ? style.accentColor : dim('0.28'),
-            marginBottom: 2,
-          }}
-        >
+        <div style={{ ...FONT_LABEL, fontSize: 8, letterSpacing: '0.14em', color: labelColor, marginBottom: 2 }}>
           {data.label}
         </div>
-        <div
-          style={{
-            ...FONT_LABEL,
-            fontSize: 7,
-            letterSpacing: '0.10em',
-            color: isSelected ? style.accentColor : dim('0.18'),
-            opacity: 0.7,
-            marginBottom: 9,
-          }}
-        >
+        <div style={{ ...FONT_LABEL, fontSize: 7, letterSpacing: '0.10em', color: sublabColor, opacity: 0.7, marginBottom: 9 }}>
           {data.sublabel}
         </div>
         <blockquote
@@ -571,7 +554,7 @@ const ContrastCard = memo(function ContrastCard({
             ...FONT_QUOTE,
             fontSize: 13,
             lineHeight: 1.65,
-            color: isSelected ? dim('0.88') : dim('0.38'),
+            color: quoteColor,
             margin: '0 0 10px',
             overflow: 'hidden',
             display: '-webkit-box' as React.CSSProperties['display'],
@@ -587,24 +570,13 @@ const ContrastCard = memo(function ContrastCard({
       <div
         style={{
           padding: '6px 13px 9px',
-          borderTop: isSelected
-            ? `0.5px solid ${style.accentColor}18`
-            : `0.5px solid ${dim('0.06')}`,
+          borderTop: footerBorder,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <span
-          style={{
-            ...FONT_LABEL,
-            fontSize: 7,
-            letterSpacing: '0.10em',
-            color: isSelected ? style.accentColor : dim('0.22'),
-            backgroundColor: isSelected ? style.tagBg : 'rgba(242,237,223,0.03)',
-            padding: '2px 6px',
-          }}
-        >
+        <span style={{ ...FONT_LABEL, fontSize: 7, letterSpacing: '0.10em', color: tagColor, backgroundColor: tagBg, padding: '2px 6px' }}>
           {style.effectiveness}
         </span>
         <RarityPips tier={tierKey} size={4} />
@@ -679,6 +651,14 @@ function BlindSelectionStage({
   instinctAnalysis?: InstinctAnalysis
   onSelect: (tier: TierKey) => void
 }) {
+  /**
+   * Shuffle once on mount — empty deps are intentional.
+   * `fisherYatesShuffle` is pure and referentially stable so no lint warning needed.
+   * TIERS is a module-level constant so this never re-shuffles on parent re-renders.
+   */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const shuffledTiers = useMemo(() => fisherYatesShuffle(TIERS), [])
+
   return (
     <motion.div
       key="blind-selection"
@@ -710,11 +690,11 @@ function BlindSelectionStage({
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-6 items-start">
-        {TIERS.map((key, idx) => (
+        {shuffledTiers.map((key, idx) => (
           <BlindCardItem
             key={key}
             responseText={scenario.responses[key].text}
-            cardIndex={idx}
+            cardIndex={idx as 0 | 1 | 2}
             onClick={() => onSelect(key)}
             delay={0.2 + idx * 0.14}
           />
@@ -741,13 +721,6 @@ function BlindSelectionStage({
 // ---------------------------------------------------------------------------
 // Stage 2 — Reveal & clinical analysis view
 // ---------------------------------------------------------------------------
-
-const REVEAL_VARIANTS = {
-  card:    { initial: { opacity: 0, scale: 0.95 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.4, delay: 0.1 } },
-  grid:    { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.2 } },
-  instinct:{ initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.3 } },
-  actions: { initial: { opacity: 0, y: 20 },       animate: { opacity: 1, y: 0 },     transition: { duration: 0.4, delay: 0.4 } },
-}
 
 function RevealAnalysisStage({
   scenario,
@@ -790,18 +763,12 @@ function RevealAnalysisStage({
       </motion.div>
 
       {/* Expanded selected card */}
-      <motion.div
-        {...REVEAL_VARIANTS.card}
-        className="mb-10 max-w-2xl mx-auto"
-      >
+      <motion.div {...REVEAL_VARIANTS.card} className="mb-10 max-w-2xl mx-auto">
         <SelectedTierCard tierKey={selectedTier} scenario={scenario} />
       </motion.div>
 
       {/* Contrast grid */}
-      <motion.div
-        {...REVEAL_VARIANTS.grid}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 max-w-5xl mx-auto"
-      >
+      <motion.div {...REVEAL_VARIANTS.grid} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10 max-w-5xl mx-auto">
         {TIERS.map((key) => (
           <ContrastCard
             key={key}
@@ -893,8 +860,9 @@ export default function Phase2Response({
 
       <div className="relative z-[10] max-w-[1200px] mx-auto px-6 md:px-10 pb-16">
         <AnimatePresence mode="wait">
-          {!selectedTier ? (
+          {selectedTier === null ? (
             <BlindSelectionStage
+              key="blind"
               scenario={scenario}
               instinctText={instinctText}
               instinctAnalysis={instinctAnalysis}
@@ -902,6 +870,7 @@ export default function Phase2Response({
             />
           ) : (
             <RevealAnalysisStage
+              key="reveal"
               scenario={scenario}
               instinctText={instinctText}
               instinctAnalysis={instinctAnalysis}
