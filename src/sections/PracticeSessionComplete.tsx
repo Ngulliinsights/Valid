@@ -6,7 +6,7 @@ import type { ScenarioData, ResponseTier } from '../App'
 import type { PracticeEntry } from '../types/practice'
 import type { AnalysisResult } from '../lib/responseAnalysis'
 import { savePracticeEntry } from '../lib/practiceJournal'
-import reflectionImage from '../../images/The space between knowing and responding.webp'
+import reflectionImage from '../../images/Glowing seam in dark abstraction.webp'
 
 // ---------------------------------------------------------------------------
 // Types
