@@ -12,6 +12,14 @@ const HERO_LINE1 = ['The', 'practiced']
 const HERO_LINE2 = ['response']
 const HERO_LINE3 = ['that', 'holds.']
 
+const emberStyle: React.CSSProperties = {
+  background: 'linear-gradient(90deg, #C4882A 0%, #E0A84A 50%, #C4882A 100%)',
+  backgroundSize: '200%',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  animation: 'sweep 5s ease-in-out infinite',
+}
+
 const STATS = [
   { value: '60+',   label: 'CLINICAL SCENARIOS' },
   { value: '3',     label: 'PHASE METHODOLOGY' },
@@ -20,11 +28,11 @@ const STATS = [
 
 export default function LandingSection({ onBegin }: LandingSectionProps) {
   return (
-    <section className="relative min-h-screen flex flex-col justify-center overflow-hidden grain-overlay">
+    <section className="relative min-h-[100dvh] min-h-screen flex flex-col justify-center rule-matrix-bg overflow-hidden grain-overlay">
       <EchoField />
       <ThresholdPattern />
       {/* Top bar */}
-      <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between z-[10]">
+      <div className="absolute top-0 left-0 right-0 p-6 md:p-10 flex items-start justify-between relative z-[10]">
         <ValidLogo size="md" color="parchment" showTagline />
         <motion.div
           initial={{ opacity: 0 }}
@@ -32,8 +40,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
           transition={{ delay: 1.6, duration: 0.5 }}
           className="hidden md:flex flex-col items-end gap-1 pt-1"
         >
-          <span className="label-text text-drift/50">REGISTER 02</span>
-          <span className="label-text text-ember/70">DEPRESSION & WITHDRAWAL</span>
+          <span className="label-text text-drift/50">SCENARIO 07</span>
+          <span className="label-text text-ember/70">SUICIDAL IDEATION</span>
         </motion.div>
       </div>
 
@@ -55,7 +63,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
 
           {/* Hero heading */}
           <h1
-            className="font-cormorant font-semibold text-parchment leading-[1.0] tracking-[-0.02em] landing-hero-heading"
+            className="font-cormorant font-semibold text-parchment leading-[1.0] tracking-[-0.02em]"
+            style={{ fontSize: 'clamp(54px, 8vw, 84px)' }}
           >
             {HERO_LINE1.map((word, i) => (
               <motion.span
@@ -92,7 +101,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
               return (
                 <motion.span
                   key={`l3-${i}`}
-                  className={['inline-block mr-[0.22em]', isAccent ? 'italic landing-hero-accent' : ''].join(' ')}
+                  className={['inline-block mr-[0.22em]', isAccent ? 'italic' : ''].join(' ')}
                   variants={blurIn}
                   initial="hidden"
                   animate="visible"
@@ -101,6 +110,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
                     delay: 0.18 + (HERO_LINE1.length + HERO_LINE2.length) * 0.07 + i * 0.07,
                     ease: 'easeOut',
                   }}
+                  style={isAccent ? emberStyle : undefined}
                 >
                   {word}
                 </motion.span>
@@ -130,7 +140,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
             <button
               onClick={onBegin}
               data-cursor-hover
-              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl"
+              className="group inline-flex items-center gap-3 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
             >
               BEGIN SESSION
               <span
@@ -142,7 +152,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
             </button>
 
             <p className="font-dm text-xs text-drift/50 uppercase tracking-[0.12em]">
-              REGISTER 02 · DEPRESSION & WITHDRAWAL · INTERMEDIATE · 15 MIN
+              SCENARIO 07 · SUICIDAL IDEATION · INTERMEDIATE · 35 MIN
             </p>
           </motion.div>
 
@@ -179,8 +189,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
             />
             
             {/* Tactile picture frame with drop shadow */}
-            <div className="relative bg-ground border border-parchment/10 p-4 shadow-[0_28px_60px_-15px_rgba(0,0,0,0.8)] rounded-2xl transition-all duration-500 group-hover:border-ember/25 group-hover:shadow-[0_36px_72px_-12px_rgba(196,136,42,0.15)]">
-              <div className="overflow-hidden border border-parchment/5 bg-ground/50 rounded-xl">
+            <div className="relative bg-ground border border-parchment/10 p-4 shadow-[0_28px_60px_-15px_rgba(0,0,0,0.8)] transition-all duration-500 group-hover:border-ember/25 group-hover:shadow-[0_36px_72px_-12px_rgba(196,136,42,0.15)]">
+              <div className="overflow-hidden border border-parchment/5 bg-ground/50">
                 <img 
                   src={cardImage} 
                   alt="VALID physical clinical scenario card preview" 
@@ -205,7 +215,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
 
       {/* Vertical ember rule — decorative */}
       <div
-        className="absolute right-10 top-1/2 -translate-y-1/2 w-px h-32 hidden lg:block landing-vertical-rule"
+        className="absolute right-10 top-1/2 -translate-y-1/2 w-px h-32 hidden lg:block"
+        style={{ background: 'linear-gradient(to bottom, transparent, rgba(196,136,42,0.25), transparent)' }}
         aria-hidden="true"
       />
     </section>
