@@ -1,36 +1,33 @@
 import { useState, useCallback } from 'react'
 
-import LandingSection      from './sections/LandingSection'
-import CharacterSelection  from './sections/CharacterSelection'
-import Phase1Diagnostic    from './sections/Phase1Diagnostic'
-import Phase2Response      from './sections/Phase2Response'
-import Phase3Reflection    from './sections/Phase3Reflection'
+import LandingSection          from './sections/LandingSection'
+import ScenarioSelection       from './sections/ScenarioSelection'
+import Phase1Diagnostic        from './sections/Phase1Diagnostic'
+import Phase2Response          from './sections/Phase2Response'
+import Phase3Reflection        from './sections/Phase3Reflection'
 import PracticeSessionComplete from './sections/PracticeSessionComplete'
-import PracticeHistory     from './sections/PracticeHistory'
-import CustomCursor        from './components/CustomCursor'
+import PracticeHistory         from './sections/PracticeHistory'
+import CustomCursor            from './components/CustomCursor'
 import { analyzeResponseType } from './lib/responseAnalysis'
 import type { AnalysisResult } from './lib/responseAnalysis'
+import type { ScenarioSelection as ScenarioSelectionState } from './sections/ScenarioSelection'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-// Move to `src/types.ts` once the surface grows beyond a single scenario.
 
 export type PracticePhase =
   | 'landing'
-  | 'character'
+  | 'scenario-selection'
   | 'phase1'
   | 'phase2'
   | 'phase3'
   | 'complete'
   | 'history'
 
-export interface Character {
-  id:           string
-  name:         string
-  role:         string
-  context:      string
-  learningEdge: string
-  initials:     string
-}
+export type ResponseType =
+  | 'invalidating-antagonising'
+  | 'invalidating-enabling'
+  | 'partial'
+  | 'validating'
 
 export interface ResponseTier {
   label:        string
@@ -41,12 +38,12 @@ export interface ResponseTier {
 }
 
 export interface ScenarioData {
-  category:       string
-  scenarioNumber: string
-  pathway:        string
-  complexity:     string
-  level:          string
-  scenarioText:   string
+  category:           string
+  scenarioNumber:     string
+  pathway:            string
+  complexity:         string
+  level:              string
+  scenarioText:       string
   responses: {
     tier1: ResponseTier
     tier2: ResponseTier
@@ -55,45 +52,30 @@ export interface ScenarioData {
   reflectionQuestion: string
 }
 
-export interface ScoreData {
-  therapeuticResponse: number
-  relationalClinical:  number
-  culturalAwareness:   number
-  safetyAssessment:    number
-  total:               number
-  milestone:           string | null
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+// Maps every ResponseType to its corresponding ScenarioData tier.
+// Both invalidating subtypes map to tier1 — the distinction is surfaced
+// in the analysis block, not in the scenario card architecture.
+const RESPONSE_TIER_MAP: Record<ResponseType, keyof ScenarioData['responses']> = {
+  'invalidating-antagonising': 'tier1',
+  'invalidating-enabling':     'tier1',
+  partial:                     'tier2',
+  validating:                  'tier3',
 }
 
-// ─── Static data ──────────────────────────────────────────────────────────────
-// TODO: extract to `src/data/characters.ts` and `src/data/scenarios.ts`
-// once multiple scenarios are added so App stays free of domain data.
+// Human-readable labels for vertical keys — used as the session identity
+// in PracticeEntry until the types/practice schema is updated.
+// TODO: replace characterId/characterName in PracticeEntry with vertical/verticalLabel.
+const VERTICAL_LABELS: Record<string, string> = {
+  'anxiety':            'Anxiety & Spiral Thinking',
+  'depression':         'Depression & Withdrawal',
+  'altered-perception': 'Altered Perception',
+  'random':             'General Practice',
+}
 
-export const CHARACTERS: Character[] = [
-  {
-    id:           'chen',
-    name:         'Dr. Sarah Chen',
-    role:         'CLINICAL PSYCHOLOGIST',
-    context:      'Outpatient practice, 12 years. Anxiety and depression specializations.',
-    learningEdge: 'SAFETY ASSESSMENT',
-    initials:     'SC',
-  },
-  {
-    id:           'rivera',
-    name:         'Marcus Rivera',
-    role:         'PSYCHIATRIC NURSE PRACTITIONER',
-    context:      'Emergency and inpatient settings. Crisis stabilization focus.',
-    learningEdge: 'THERAPEUTIC ALLIANCE UNDER PRESSURE',
-    initials:     'MR',
-  },
-  {
-    id:           'osei',
-    name:         'Dr. Amara Osei',
-    role:         'LICENSED CLINICAL SOCIAL WORKER',
-    context:      'Community mental health, family systems. Trauma-informed care specialist.',
-    learningEdge: 'CULTURAL RESPONSIVENESS',
-    initials:     'AO',
-  },
-]
+// ─── Static scenario data ─────────────────────────────────────────────────────
+// TODO: move to src/data/scenarios.ts once multiple scenarios are seeded.
 
 export const SCENARIO_DATA: ScenarioData = {
   category:       'SUICIDAL IDEATION',
@@ -136,22 +118,13 @@ export const SCENARIO_DATA: ScenarioData = {
     'How did your instinct compare to the Tier 03 response? What specifically did the validating response do that your instinct did not?',
 }
 
-export const SCORE_DATA: ScoreData = {
-  therapeuticResponse: 85,
-  relationalClinical:  78,
-  culturalAwareness:   72,
-  safetyAssessment:    90,
-  total:               81,
-  milestone:           'INSTINCT UPDATED',
-}
-
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [phase,                setPhase]                = useState<PracticePhase>('landing')
-  const [selectedCharacter,    setSelectedCharacter]    = useState<Character | null>(null)
+  const [scenarioSelection,    setScenarioSelection]    = useState<ScenarioSelectionState | null>(null)
   const [instinctText,         setInstinctText]         = useState('')
-  const [selectedResponseType, setSelectedResponseType] = useState<'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating' | null>(null)
+  const [selectedResponseType, setSelectedResponseType] = useState<ResponseType | null>(null)
   const [instinctAnalysis,     setInstinctAnalysis]     = useState<AnalysisResult | null>(null)
 
   // Scroll-reset on every phase transition.
@@ -163,33 +136,45 @@ export default function App() {
   // Full session reset — shared by "Play again" and "Return to start".
   const handleReset = useCallback(() => {
     setInstinctText('')
-    setSelectedCharacter(null)
+    setScenarioSelection(null)
     setSelectedResponseType(null)
     setInstinctAnalysis(null)
     goToPhase('landing')
   }, [goToPhase])
 
-  // Determine response type from instinct
-  const getResponseType = (): 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating' => {
-    // For now, return 'partial' as placeholder — in real app, this would be determined
-    // by analyzing the instinctText against clinical criteria
-    return selectedResponseType || 'partial'
-  }
+  // Analyse the instinct text once, on leaving Phase 1, so Phase 2 and
+  // Phase 3 both receive the same result without re-computing it.
+  const handlePhase1Continue = useCallback(() => {
+    setInstinctAnalysis(analyzeResponseType(instinctText))
+    goToPhase('phase2')
+  }, [instinctText, goToPhase])
+
+  // Derive the response tier card from the player's confirmed selection.
+  // We require an explicit selection before entering Phase 3; if this is
+  // somehow null at the complete screen, fall back defensively to partial
+  // rather than indexing with undefined.
+  const activeResponseType: ResponseType = selectedResponseType ?? 'partial'
+  const selectedResponseTier = SCENARIO_DATA.responses[RESPONSE_TIER_MAP[activeResponseType]]
+
+  // Session identity for PracticeEntry — vertical key + label.
+  // TODO: update PracticeEntry type to replace characterId/characterName with vertical/verticalLabel.
+  const verticalKey   = scenarioSelection?.vertical ?? 'random'
+  const verticalLabel = VERTICAL_LABELS[verticalKey] ?? 'General Practice'
 
   return (
     <div className="min-h-screen bg-ground">
       <CustomCursor />
 
       {phase === 'landing' && (
-        <LandingSection onBegin={() => goToPhase('character')} />
+        <LandingSection onBegin={() => goToPhase('scenario-selection')} />
       )}
 
-      {phase === 'character' && (
-        <CharacterSelection
-          characters={CHARACTERS}
-          selectedCharacter={selectedCharacter}
-          onSelect={setSelectedCharacter}
-          onContinue={() => goToPhase('phase1')}
+      {phase === 'scenario-selection' && (
+        <ScenarioSelection
+          onBegin={(selection) => {
+            setScenarioSelection(selection)
+            goToPhase('phase1')
+          }}
         />
       )}
 
@@ -198,7 +183,7 @@ export default function App() {
           scenario={SCENARIO_DATA}
           instinctText={instinctText}
           onInstinctChange={setInstinctText}
-          onContinue={() => goToPhase('phase2')}
+          onContinue={handlePhase1Continue}
         />
       )}
 
@@ -206,11 +191,9 @@ export default function App() {
         <Phase2Response
           scenario={SCENARIO_DATA}
           instinctText={instinctText}
-          instinctAnalysis={instinctAnalysis || analyzeResponseType(instinctText)}
+          instinctAnalysis={instinctAnalysis ?? undefined}
           onResponseTypeSelect={(type) => {
             setSelectedResponseType(type)
-            // Store analysis for later use
-            setInstinctAnalysis(analyzeResponseType(instinctText))
             goToPhase('phase3')
           }}
         />
@@ -223,15 +206,15 @@ export default function App() {
         />
       )}
 
-      {phase === 'complete' && selectedCharacter && (
+      {phase === 'complete' && (
         <PracticeSessionComplete
           scenario={SCENARIO_DATA}
-          characterId={selectedCharacter.id}
-          characterName={selectedCharacter.name}
+          characterId={verticalKey}
+          characterName={verticalLabel}
           instinctiveResponse={instinctText}
           instinctAnalysis={instinctAnalysis}
-          responseType={getResponseType()}
-          selectedResponseTier={SCENARIO_DATA.responses[getResponseType() === 'validating' ? 'tier3' : getResponseType() === 'partial' ? 'tier2' : 'tier1']}
+          responseType={activeResponseType}
+          selectedResponseTier={selectedResponseTier}
           onPlayAnother={handleReset}
           onReviewHistory={() => goToPhase('history')}
         />

@@ -4,7 +4,6 @@ import ValidLogo from '../components/ValidLogo'
 import PhaseIndicator from '../components/PhaseIndicator'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
 import type { ScenarioData } from '../App'
-import type { AnalysisResult } from '../lib/responseAnalysis'
 import { ContainmentPattern } from '../components/patterns'
 
 // ---------------------------------------------------------------------------
@@ -17,7 +16,11 @@ type ResponseType = 'invalidating-antagonising' | 'invalidating-enabling' | 'par
 interface Phase2ResponseProps {
   scenario: ScenarioData
   instinctText: string
-  instinctAnalysis?: AnalysisResult
+  instinctAnalysis?: {
+    primaryType: ResponseType
+    confidence: 'high' | 'moderate' | 'low'
+    keywords: string[]
+  }
   onResponseTypeSelect: (type: ResponseType) => void
 }
 
@@ -63,7 +66,6 @@ const TIER_STYLES: Record<TierKey, TierStyle> = {
 
 const TIERS: TierKey[] = ['tier1', 'tier2', 'tier3']
 
-// Contextual note shown beneath the instinct block, based on what the player chose
 const INSTINCT_NOTES: Record<TierKey, string> = {
   tier1:
     'Your instinct moved toward confrontation. Notice the distance between that impulse and the validating response — closing that gap is exactly what this practice builds.',
@@ -291,6 +293,7 @@ function InstinctAside({
 export default function Phase2Response({
   scenario,
   instinctText,
+  instinctAnalysis,
   onResponseTypeSelect,
 }: Phase2ResponseProps) {
   const [selectedTier, setSelectedTier] = useState<TierKey | null>(null)
