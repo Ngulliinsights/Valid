@@ -64,10 +64,13 @@ export default function Phase1Diagnostic({
   const handleFlip = useCallback(() => setIsFlipped((f) => !f), [])
 
   const handleHomeClick = () => {
-    if (onReturnToHome) {
-      if (confirm('Are you sure you want to exit your active practice session? Your progress will be lost.')) {
-        onReturnToHome()
-      }
+    if (
+      onReturnToHome &&
+      window.confirm(
+        'Exit this practice session? Your progress will not be saved.',
+      )
+    ) {
+      onReturnToHome()
     }
   }
 

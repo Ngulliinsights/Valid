@@ -13,10 +13,13 @@ interface Phase3ReflectionProps {
 
 export default function Phase3Reflection({ scenario, onContinue, onReturnToHome }: Phase3ReflectionProps) {
   const handleHomeClick = () => {
-    if (onReturnToHome) {
-      if (confirm('Are you sure you want to exit your active practice session? Your progress will be lost.')) {
-        onReturnToHome()
-      }
+    if (
+      onReturnToHome &&
+      window.confirm(
+        'Exit this practice session? Your progress will not be saved.',
+      )
+    ) {
+      onReturnToHome()
     }
   }
 

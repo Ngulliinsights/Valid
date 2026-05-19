@@ -40,8 +40,8 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
           transition={{ delay: 1.6, duration: 0.5 }}
           className="hidden md:flex flex-col items-end gap-1 pt-1"
         >
-          <span className="label-text text-drift/50">SCENARIO 07</span>
-          <span className="label-text text-ember/70">SUICIDAL IDEATION</span>
+          <span className="label-text text-drift/50">REGISTER 02</span>
+          <span className="label-text text-ember/70">DEPRESSION & WITHDRAWAL</span>
         </motion.div>
       </div>
 
@@ -152,7 +152,7 @@ export default function LandingSection({ onBegin }: LandingSectionProps) {
             </button>
 
             <p className="font-dm text-xs text-drift/50 uppercase tracking-[0.12em]">
-              SCENARIO 07 · SUICIDAL IDEATION · INTERMEDIATE · 35 MIN
+              REGISTER 02 · DEPRESSION & WITHDRAWAL · INTERMEDIATE · 15 MIN
             </p>
           </motion.div>
 
