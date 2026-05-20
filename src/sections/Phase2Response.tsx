@@ -379,7 +379,7 @@ const SelectedTierCard = memo(function SelectedTierCard({
         <button
           onClick={toggleMechanism}
           type="button"
-          aria-expanded={mechanismOpen}
+          aria-expanded={mechanismOpen as boolean}
           style={{
             width: '100%',
             display: 'flex',

@@ -12,7 +12,7 @@ import { DialogueStackPattern } from '../components/patterns'
 
 interface Phase3ReflectionProps {
   scenario: ScenarioData
-  onContinue: () => void
+  onContinue: (reflections: Record<string, string>) => void
   onReturnToHome?: () => void
 }
 
@@ -205,7 +205,7 @@ interface CompletionIndicatorProps {
 function CompletionIndicator({ filled, total }: CompletionIndicatorProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex gap-1.5" role="progressbar" aria-valuenow={filled} aria-valuemax={total}>
+      <div className="flex gap-1.5" role="progressbar" aria-valuenow={String(filled)} aria-valuemax={String(total)}>
         {Array.from({ length: total }).map((_, i) => (
           <motion.div
             key={i}
@@ -347,10 +347,9 @@ export default function Phase3Reflection({
             <CompletionIndicator filled={filledCount} total={REFLECTION_CRITERIA.length} />
 
             <button
-              onClick={onContinue}
+              onClick={() => onContinue(responses)}
               disabled={!canContinue}
               data-cursor-hover
-              aria-disabled={!canContinue}
               className={[
                 'group inline-flex items-center gap-3 font-dm font-medium text-sm uppercase tracking-[0.14em] px-9 py-4 transition-all duration-200 rounded-xl shrink-0',
                 canContinue

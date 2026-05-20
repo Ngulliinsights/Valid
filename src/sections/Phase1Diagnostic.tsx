@@ -291,7 +291,7 @@ export default function Phase1Diagnostic({
             {/* Flip control */}
             <button
               onClick={handleFlip}
-              aria-pressed={isFlipped ? 'true' : 'false'}
+              aria-pressed={isFlipped}
               aria-label={isFlipped ? 'Show scenario front' : 'Flip to card back'}
               className="mt-4 font-dm text-[11px] text-drift/40 hover:text-drift/70 transition-colors duration-150 uppercase tracking-[0.1em]"
             >
