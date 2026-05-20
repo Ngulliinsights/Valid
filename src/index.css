@@ -69,13 +69,6 @@
     scrollbar-gutter: stable;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    /* Hide native cursor when CustomCursor is active (pointer: fine devices). */
-    cursor: none;
-  }
-
-  /* Restore default cursor on coarse/touch devices — CustomCursor is invisible there. */
-  @media (pointer: coarse) {
-    html { cursor: auto; }
   }
 
   body {

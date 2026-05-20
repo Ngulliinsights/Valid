@@ -238,13 +238,13 @@ export default function Phase1Diagnostic({
 
             {/* Flippable card */}
             <div
-              className="relative w-full max-w-[400px]"
-              style={{ transformStyle: 'preserve-3d', transform: 'rotate(-0.8deg)' }}
+              className="relative w-full max-w-full lg:max-w-[400px]"
+              style={{ transformStyle: 'preserve-3d' }}
             >
               <motion.div
                 role="region"
                 aria-label={isFlipped ? 'Card back' : 'Scenario card'}
-                className="relative bg-parchment shadow-[0_24px_70px_rgba(0,0,0,0.75)] rounded-2xl"
+                className="relative bg-parchment shadow-[0_24px_70px_rgba(0,0,0,0.75)] rounded-2xl lg:rotate-[-0.8deg]"
                 style={{ minHeight: 480, transformStyle: 'preserve-3d' }}
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
                 transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}

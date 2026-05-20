@@ -40,7 +40,7 @@ export const SCENARIOS: Record<string, Record<'intermediate' | 'advanced', Scena
         },
       },
       reflectionQuestion:
-        'Tier 2 offers competence reassurance and a concrete action plan — both rational goods. Why does this register as abandonment during deep impostor shame, and what does Tier 3\'s deliberate suspension of performance expectations make safe that Tier 2 cannot?',
+        'The Bridge offers competence reassurance and a concrete action plan — both rational goods. Why does this register as abandonment during deep impostor shame, and what does The Reach\'s deliberate suspension of performance expectations make safe that The Bridge cannot?',
     },
     advanced: {
       category: 'ANXIETY & SPIRAL THINKING',
@@ -80,7 +80,7 @@ export const SCENARIOS: Record<string, Record<'intermediate' | 'advanced', Scena
         },
       },
       reflectionQuestion:
-        'Tier 2\'s rapid test offers a genuinely safer path than self-medicating. Why does it still escalate the spiral over time, and how does Tier 3\'s refusal to enter the diagnostic loop while naming the specific fear — the newborn — do something structurally different?',
+        'The Bridge\'s rapid test offers a genuinely safer path than self-medicating. Why does it still escalate the spiral over time, and how does The Reach\'s refusal to enter the diagnostic loop while naming the specific fear — the newborn — do something structurally different?',
     },
   },
 
@@ -123,7 +123,7 @@ export const SCENARIOS: Record<string, Record<'intermediate' | 'advanced', Scena
         },
       },
       reflectionQuestion:
-        'The client completed every assigned task. Why does the Tier 2 response — which acknowledges this — still feel like abandonment, and what is Tier 3 offering when it refuses to propose a next action?',
+        'The client completed every assigned task. Why does The Bridge response — which acknowledges this — still feel like abandonment, and what is The Reach offering when it refuses to propose a next action?',
     },
     advanced: {
       category: 'DEPRESSION & WITHDRAWAL',
@@ -163,7 +163,7 @@ export const SCENARIOS: Record<string, Record<'intermediate' | 'advanced', Scena
         },
       },
       reflectionQuestion:
-        'Tier 2 sincerely asserts care and proposes a concrete improvement. Why does this read as defensive, and what does absorbing the client\'s hostility without defense (Tier 3) make available that verbal reassurance cannot?',
+        'The Bridge sincerely asserts care and proposes a concrete improvement. Why does this read as defensive, and what does absorbing the client\'s hostility without defense (The Reach) make available that verbal reassurance cannot?',
     },
   },
 
@@ -206,7 +206,7 @@ export const SCENARIOS: Record<string, Record<'intermediate' | 'advanced', Scena
         },
       },
       reflectionQuestion:
-        'Tier 2 tries to meet the client on their own ground before redirecting — a reasonable instinct. Why does this still increase paranoia, and what does Tier 3\'s refusal to engage the physical claim at all change about how the fear is processed?',
+        'The Bridge tries to meet the client on their own ground before redirecting — a reasonable instinct. Why does this still increase paranoia, and what does The Reach\'s refusal to engage the physical claim at all change about how the fear is processed?',
     },
     advanced: {
       category: 'ALTERED PERCEPTION',
@@ -246,7 +246,7 @@ export const SCENARIOS: Record<string, Record<'intermediate' | 'advanced', Scena
         },
       },
       reflectionQuestion:
-        'Both Tier 1 and Tier 2 attempt to keep the client in the room — Tier 1 by threat, Tier 2 by persuasion. Why does Tier 3\'s offer of the opposite — the freedom to leave — restore enough safety that staying becomes possible?',
+        'Both The Wall and The Bridge attempt to keep the client in the room — The Wall by threat, The Bridge by persuasion. Why does The Reach\'s offer of the opposite — the freedom to leave — restore enough safety that staying becomes possible?',
     },
   },
 }

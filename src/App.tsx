@@ -7,7 +7,7 @@ import Phase2Response          from './sections/Phase2Response'
 import Phase3Reflection        from './sections/Phase3Reflection'
 import PracticeSessionComplete from './sections/PracticeSessionComplete'
 import PracticeHistory         from './sections/PracticeHistory'
-import CustomCursor            from './components/CustomCursor'
+
 import { analyzeResponseType } from './lib/responseAnalysis'
 import type { AnalysisResult } from './lib/responseAnalysis'
 import { SCENARIOS } from './data/scenarios'
@@ -152,7 +152,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-ground">
-      <CustomCursor />
+
 
       {phase === 'landing' && (
         <LandingSection onBegin={() => goToPhase('scenario-selection')} />
