@@ -113,7 +113,10 @@ export default function App() {
               vertical:   VERTICAL_KEYS[Math.floor(Math.random() * VERTICAL_KEYS.length)],
               complexity: COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)],
             }
-          : selection
+          : {
+              ...selection,
+              complexity: selection.complexity ?? COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)],
+            }
 
       dispatch({ type: 'setScenarioSelection', selection: resolved })
       goToPhase('phase1')

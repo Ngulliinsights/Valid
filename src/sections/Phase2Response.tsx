@@ -651,7 +651,10 @@ function BlindSelectionStage({
   instinctAnalysis?: InstinctAnalysis
   onSelect: (tier: TierKey) => void
 }) {
-  const shuffledTiers = useMemo(() => fisherYatesShuffle(TIERS), [])
+  const shuffledTiers = useMemo(() => {
+    const tierList = [...TIERS]
+    return fisherYatesShuffle(tierList)
+  }, [scenario])
 
   return (
     <motion.div
