@@ -55,7 +55,9 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
           ? `Instinct Analysis: ${entry.instinctAnalysis.primaryType} (${entry.instinctAnalysis.confidence} confidence)`
           : 'Instinct Analysis: Not captured',
         `Phase 2 Selection: ${entry.responseType}`,
-        `Commitment: ${entry.behavioralCommitment}`,
+        entry.reflections
+          ? `Reflections: ${JSON.stringify(entry.reflections)}`
+          : 'Reflections: Not captured',
         '─'.repeat(51),
       ]),
     ]
@@ -302,11 +304,22 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
                             </span>
                           </div>
 
-                          {/* Behavioral Commitment */}
-                          <div className="text-xs text-drift/60 pt-2 border-t border-drift/20">
-                            <p className="font-medium text-parchment mb-1">Commitment:</p>
-                            <p className="italic">{entry.behavioralCommitment}</p>
-                          </div>
+                          {/* Reflections */}
+                          {entry.reflections && Object.keys(entry.reflections).length > 0 && (
+                            <div className="text-xs text-drift/60 pt-2 border-t border-drift/20">
+                              <p className="font-medium text-parchment mb-2">Reflections:</p>
+                              <div className="space-y-1">
+                                {Object.entries(entry.reflections).slice(0, 2).map(([key, value]) => (
+                                  <p key={key} className="text-drift/50">
+                                    <span className="text-parchment/70 capitalize">{key}:</span> {value.substring(0, 60)}...
+                                  </p>
+                                ))}
+                                {Object.keys(entry.reflections).length > 2 && (
+                                  <p className="text-drift/30">+{Object.keys(entry.reflections).length - 2} more reflections</p>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )
                     })}

@@ -25,6 +25,7 @@ interface PracticeSessionCompleteProps {
   instinctAnalysis?: AnalysisResult | null
   responseType: ResponseType
   selectedResponseTier: ResponseTier
+  reflections?: Record<string, string> | null
   onPlayAnother: () => void
   onReviewHistory: () => void
   onReturnToHome?: () => void
@@ -70,7 +71,7 @@ const ANALYSIS_STYLES: Record<ResponseType, { bg: string; borderLeft: string }> 
 // null = high confidence, no qualifier shown
 const CONFIDENCE_QUALIFIERS: Record<string, string | null> = {
   high: null,
-  medium: 'indicative read',
+  moderate: 'indicative read',
   low: 'preliminary read',
 }
 
@@ -155,6 +156,7 @@ export default function PracticeSessionComplete({
   instinctAnalysis,
   responseType,
   selectedResponseTier,
+  reflections,
   onPlayAnother,
   onReviewHistory,
   onReturnToHome,
@@ -183,6 +185,7 @@ export default function PracticeSessionComplete({
           }
         : undefined,
       responseType,
+      reflections: reflections ?? undefined,
       completedAt: now,
     }
     savePracticeEntry(entry)
@@ -192,6 +195,7 @@ export default function PracticeSessionComplete({
     characterName,
     instinctAnalysis,
     instinctiveResponse,
+    reflections,
     responseType,
     scenario.category,
     scenario.complexity,

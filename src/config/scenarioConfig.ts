@@ -105,8 +105,8 @@ export interface ScenarioData {
 
 export const RESPONSE_TIER_MAP: Record<ResponseType, keyof ScenarioData['responses']> = {
   'invalidating-antagonising': 'tier1',
-  'invalidating-enabling':     'tier1',
-  partial:                     'tier2',
+  'invalidating-enabling':     'tier2',
+  partial:                     'tier3',
   validating:                  'tier3',
 }
 

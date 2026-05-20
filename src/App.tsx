@@ -37,7 +37,7 @@ export type PracticePhase =
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const VERTICAL_KEYS: VerticalKey[]       = ['anxiety', 'depression', 'altered-perception']
-const COMPLEXITY_POOL: ComplexityLevel[] = ['Intermediate', 'Advanced']
+const COMPLEXITY_POOL: ComplexityLevel[] = ['Basic', 'Intermediate', 'Advanced', 'Master']
 
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 
@@ -49,6 +49,7 @@ interface SessionState {
   instinctText: string
   selectedResponseType: ResponseType | null
   instinctAnalysis: AnalysisResult | null
+  reflections: Record<string, string> | null
 }
 
 type SessionAction =
@@ -58,6 +59,7 @@ type SessionAction =
   | { type: 'SET_INSTINCT_TEXT'; text: string }
   | { type: 'SET_RESPONSE_TYPE'; responseType: ResponseType }
   | { type: 'SET_INSTINCT_ANALYSIS'; analysis: AnalysisResult | null }
+  | { type: 'SET_REFLECTIONS'; reflections: Record<string, string> | null }
 
 const INITIAL_STATE: SessionState = {
   phase: 'landing',
@@ -65,6 +67,7 @@ const INITIAL_STATE: SessionState = {
   instinctText: '',
   selectedResponseType: null,
   instinctAnalysis: null,
+  reflections: null,
 }
 
 function sessionReducer(state: SessionState, action: SessionAction): SessionState {
@@ -81,6 +84,8 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
       return { ...state, selectedResponseType: action.responseType }
     case 'SET_INSTINCT_ANALYSIS':
       return { ...state, instinctAnalysis: action.analysis }
+    case 'SET_REFLECTIONS':
+      return { ...state, reflections: action.reflections }
   }
 }
 
@@ -88,7 +93,7 @@ function sessionReducer(state: SessionState, action: SessionAction): SessionStat
 
 export default function App() {
   const [state, dispatch] = useReducer(sessionReducer, INITIAL_STATE)
-  const { phase, scenarioSelection, instinctText, selectedResponseType, instinctAnalysis } = state
+  const { phase, scenarioSelection, instinctText, selectedResponseType, instinctAnalysis, reflections } = state
 
   // ── Navigation helpers ──────────────────────────────────────────────────────
 
@@ -137,8 +142,15 @@ export default function App() {
     [goToPhase],
   )
 
+  const handlePhase3Continue = useCallback(
+    (refs: Record<string, string>) => {
+      dispatch({ type: 'SET_REFLECTIONS', reflections: refs })
+      goToPhase('complete')
+    },
+    [goToPhase],
+  )
+
   const handleGoToHistory = useCallback(() => goToPhase('history'), [goToPhase])
-  const handleGoToComplete = useCallback(() => goToPhase('complete'), [goToPhase])
   const handleGoToScenarioSelection = useCallback(() => goToPhase('scenario-selection'), [goToPhase])
 
   // ── Derived scenario data ───────────────────────────────────────────────────
@@ -203,7 +215,7 @@ export default function App() {
       {phase === 'phase3' && (
         <Phase3Reflection
           scenario={activeScenario}
-          onContinue={handleGoToComplete}
+          onContinue={handlePhase3Continue}
           onReturnToHome={handleReset}
         />
       )}
@@ -217,6 +229,7 @@ export default function App() {
           instinctAnalysis={instinctAnalysis}
           responseType={activeResponseType}
           selectedResponseTier={selectedResponseTier}
+          reflections={reflections ?? undefined}
           onPlayAnother={handleReset}
           onReviewHistory={handleGoToHistory}
           onReturnToHome={handleReset}

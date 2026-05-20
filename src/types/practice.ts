@@ -28,6 +28,9 @@ export interface PracticeEntry {
   // Phase 3: Behavioral commitment (Deprecated - handled by Phase 3 reflection)
   behavioralCommitment?: string
   
+  // Phase 3: Reflections based on the 4-criteria model
+  reflections?: Record<string, string>
+  
   // Metadata
   completedAt: number
 }

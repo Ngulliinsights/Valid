@@ -38,6 +38,15 @@ export const TIER_STYLES: Record<TierKey, TierStyle> = {
     responseType: 'invalidating-antagonising',
   },
   tier2: {
+    accentColor: '#DD6B20',
+    bgTint: 'rgba(221,107,32,0.06)',
+    tagBg: 'rgba(221,107,32,0.12)',
+    effectiveness: 'COUNTERPRODUCTIVE',
+    label: 'Invalidating — Enabling',
+    sublabel: 'Invalidating · Enabling',
+    responseType: 'invalidating-enabling',
+  },
+  tier3: {
     accentColor: '#C4882A',
     bgTint: 'rgba(196,136,42,0.06)',
     tagBg: 'rgba(196,136,42,0.12)',
@@ -45,15 +54,6 @@ export const TIER_STYLES: Record<TierKey, TierStyle> = {
     label: 'Partial validation',
     sublabel: 'Partial Validation',
     responseType: 'partial',
-  },
-  tier3: {
-    accentColor: '#3D6B65',
-    bgTint: 'rgba(61,107,101,0.08)',
-    tagBg: 'rgba(61,107,101,0.12)',
-    effectiveness: 'OPTIMAL RESPONSE',
-    label: 'Validating',
-    sublabel: 'Full Validation',
-    responseType: 'validating',
   },
 }
 
@@ -63,16 +63,16 @@ export const TIERS: TierKey[] = ['tier1', 'tier2', 'tier3']
 /** Contextual note shown beneath the instinct quote once a tier is selected */
 export const INSTINCT_NOTES: Record<TierKey, string> = {
   tier1:
-    'Your instinct moved toward confrontation. Notice the distance between that impulse and the validating response — closing that gap is precisely what this practice builds.',
+    'Your instinct moved toward antagonism and confrontation. Notice the distance between that impulse and the validating response — closing that gap is precisely what this practice builds.',
   tier2:
-    'Your instinct reached for partial validation — closer than antagonising, but safety must be established before any move toward problem-solving.',
+    'Your instinct moved toward agreement with the distorted perception. The validating response acknowledges the emotional experience while declining to endorse the belief.',
   tier3:
-    'Your instinct aligned with the validating response. That recognition is the foundation of clinical skill.',
+    'Your instinct reached for validation or agreement. When it is validating, you are on the right path. When it is agreement with distortion, safety must be reestablished.',
 }
 
 /** Number of rarity pips per tier */
 export const TIER_PIP_COUNT: Record<TierKey, 1 | 2 | 3> = {
   tier1: 1,
-  tier2: 2,
-  tier3: 3,
+  tier2: 1,
+  tier3: 2,
 }
