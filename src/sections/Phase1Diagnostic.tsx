@@ -20,10 +20,17 @@ function useCountdown(seconds: number) {
   const [remaining, setRemaining] = useState(seconds)
 
   useEffect(() => {
-    if (remaining <= 0) return
-    const id = setInterval(() => setRemaining((r) => r - 1), 1_000)
+    const id = setInterval(() => {
+      setRemaining((r) => {
+        if (r <= 1) {
+          clearInterval(id)
+          return 0
+        }
+        return r - 1
+      })
+    }, 1_000)
     return () => clearInterval(id)
-  }, [remaining])
+  }, [])
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0')
   const ss = String(remaining % 60).padStart(2, '0')

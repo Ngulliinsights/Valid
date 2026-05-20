@@ -110,7 +110,16 @@ export function analyzeResponseType(text: string): AnalysisResult {
   // Score based on keyword matches
   Object.entries(PATTERN_KEYWORDS).forEach(([responseType, keywords]) => {
     keywords.forEach((keyword) => {
-      if (lowerText.includes(keyword)) {
+      // Escape special characters in the keyword to be safe inside the regex,
+      // though our current keywords only contain letters, spaces, and apostrophes.
+      const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      
+      // Use a word boundary regex to prevent partial matching (e.g. "justice" matching "just").
+      // \b doesn't work well with punctuation like apostrophes at the start/end, 
+      // but our keywords start/end with letters. We add (?!\w) to ensure no trailing letters.
+      const regex = new RegExp(`\\b${escapedKeyword}(?!\\w)`, 'i')
+      
+      if (regex.test(lowerText)) {
         scores[responseType as ResponseType] += 1
         if (!matchedKeywords.includes(keyword)) {
           matchedKeywords.push(keyword)
@@ -126,24 +135,29 @@ export function analyzeResponseType(text: string): AnalysisResult {
   })
 
   // Determine primary type (highest score)
-  const primaryType = (
-    Object.entries(scores).reduce((prev, current) =>
+  // If maxScore is 0, fallback to 'partial' to avoid defaulting to 'invalidating-antagonising'
+  const maxScore = Math.max(...Object.values(scores))
+  
+  let primaryType: ResponseType = 'partial'
+  if (maxScore > 0) {
+    primaryType = Object.entries(scores).reduce((prev, current) =>
       current[1] > prev[1] ? current : prev,
     )[0] as ResponseType
-  ) || 'partial'
+  }
 
   // Determine confidence based on score distribution
-  const maxScore = Math.max(...Object.values(scores))
   const secondMaxScore = Math.max(
     ...Object.values(scores).filter((s) => s !== maxScore),
   )
   const scoreGap = maxScore - secondMaxScore
 
   let confidence: 'high' | 'moderate' | 'low' = 'low'
-  if (scoreGap > 0.3) {
-    confidence = 'high'
-  } else if (scoreGap > 0.1) {
-    confidence = 'moderate'
+  if (maxScore > 0) {
+    if (scoreGap > 0.3) {
+      confidence = 'high'
+    } else if (scoreGap > 0.1) {
+      confidence = 'moderate'
+    }
   }
 
   return {
