@@ -11,7 +11,6 @@ import PracticeHistory         from './sections/PracticeHistory'
 import { analyzeResponseType } from './lib/responseAnalysis'
 import type { AnalysisResult } from './lib/responseAnalysis'
 import { SCENARIOS } from './data/scenarios'
-
 import { RESPONSE_TIER_MAP, VERTICAL_LABELS } from './config/scenarioConfig'
 import type {
   ScenarioSelection as ScenarioSelectionState,
@@ -23,6 +22,8 @@ import type {
 } from './config/scenarioConfig'
 
 export type { ScenarioData, ResponseTier }
+
+// ─── Phase ────────────────────────────────────────────────────────────────────
 
 export type PracticePhase =
   | 'landing'
@@ -38,7 +39,9 @@ export type PracticePhase =
 const VERTICAL_KEYS: VerticalKey[]       = ['anxiety', 'depression', 'altered-perception']
 const COMPLEXITY_POOL: ComplexityLevel[] = ['Intermediate', 'Advanced']
 
-// ─── State ────────────────────────────────────────────────────────────────────
+const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+
+// ─── State / Reducer ──────────────────────────────────────────────────────────
 
 interface SessionState {
   phase: PracticePhase
@@ -49,14 +52,14 @@ interface SessionState {
 }
 
 type SessionAction =
-  | { type: 'reset' }
-  | { type: 'setPhase'; phase: PracticePhase }
-  | { type: 'setScenarioSelection'; selection: ScenarioSelectionState | null }
-  | { type: 'setInstinctText'; text: string }
-  | { type: 'setSelectedResponseType'; responseType: ResponseType }
-  | { type: 'setInstinctAnalysis'; analysis: AnalysisResult | null }
+  | { type: 'RESET' }
+  | { type: 'SET_PHASE'; phase: PracticePhase }
+  | { type: 'SET_SCENARIO_SELECTION'; selection: ScenarioSelectionState }
+  | { type: 'SET_INSTINCT_TEXT'; text: string }
+  | { type: 'SET_RESPONSE_TYPE'; responseType: ResponseType }
+  | { type: 'SET_INSTINCT_ANALYSIS'; analysis: AnalysisResult | null }
 
-const initialState: SessionState = {
+const INITIAL_STATE: SessionState = {
   phase: 'landing',
   scenarioSelection: null,
   instinctText: '',
@@ -66,21 +69,28 @@ const initialState: SessionState = {
 
 function sessionReducer(state: SessionState, action: SessionAction): SessionState {
   switch (action.type) {
-    case 'reset':               return initialState
-    case 'setPhase':            return { ...state, phase: action.phase }
-    case 'setScenarioSelection':return { ...state, scenarioSelection: action.selection }
-    case 'setInstinctText':     return { ...state, instinctText: action.text }
-    case 'setSelectedResponseType': return { ...state, selectedResponseType: action.responseType }
-    case 'setInstinctAnalysis': return { ...state, instinctAnalysis: action.analysis }
-    default:                    return state
+    case 'RESET':
+      return INITIAL_STATE
+    case 'SET_PHASE':
+      return { ...state, phase: action.phase }
+    case 'SET_SCENARIO_SELECTION':
+      return { ...state, scenarioSelection: action.selection }
+    case 'SET_INSTINCT_TEXT':
+      return { ...state, instinctText: action.text }
+    case 'SET_RESPONSE_TYPE':
+      return { ...state, selectedResponseType: action.responseType }
+    case 'SET_INSTINCT_ANALYSIS':
+      return { ...state, instinctAnalysis: action.analysis }
   }
 }
 
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [state, dispatch] = useReducer(sessionReducer, initialState)
+  const [state, dispatch] = useReducer(sessionReducer, INITIAL_STATE)
   const { phase, scenarioSelection, instinctText, selectedResponseType, instinctAnalysis } = state
+
+  // ── Navigation helpers ──────────────────────────────────────────────────────
 
   const scrollToTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -88,53 +98,54 @@ export default function App() {
 
   const goToPhase = useCallback(
     (next: PracticePhase) => {
-      dispatch({ type: 'setPhase', phase: next })
+      dispatch({ type: 'SET_PHASE', phase: next })
       scrollToTop()
     },
     [scrollToTop],
   )
 
   const handleReset = useCallback(() => {
-    dispatch({ type: 'reset' })
+    dispatch({ type: 'RESET' })
     scrollToTop()
   }, [scrollToTop])
 
-  const handlePhase1Continue = useCallback(() => {
-    dispatch({ type: 'setInstinctAnalysis', analysis: analyzeResponseType(instinctText) })
-    goToPhase('phase2')
-  }, [instinctText, goToPhase])
+  // ── Phase transition handlers ───────────────────────────────────────────────
 
   const handleScenarioBegin = useCallback(
     (selection: ScenarioSelectionState) => {
       const resolved: ScenarioSelectionState =
         selection.mode === 'random'
-          ? {
-              ...selection,
-              vertical:   VERTICAL_KEYS[Math.floor(Math.random() * VERTICAL_KEYS.length)],
-              complexity: COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)],
-            }
-          : {
-              ...selection,
-              complexity: selection.complexity ?? COMPLEXITY_POOL[Math.floor(Math.random() * COMPLEXITY_POOL.length)],
-            }
+          ? { ...selection, vertical: pick(VERTICAL_KEYS), complexity: pick(COMPLEXITY_POOL) }
+          : { ...selection, complexity: selection.complexity ?? pick(COMPLEXITY_POOL) }
 
-      dispatch({ type: 'setScenarioSelection', selection: resolved })
+      dispatch({ type: 'SET_SCENARIO_SELECTION', selection: resolved })
       goToPhase('phase1')
     },
     [goToPhase],
   )
 
+  const handlePhase1Continue = useCallback(() => {
+    dispatch({ type: 'SET_INSTINCT_ANALYSIS', analysis: analyzeResponseType(instinctText) })
+    goToPhase('phase2')
+  }, [instinctText, goToPhase])
+
   const handleResponseTypeSelect = useCallback(
     (type: ResponseType) => {
-      dispatch({ type: 'setSelectedResponseType', responseType: type })
+      dispatch({ type: 'SET_RESPONSE_TYPE', responseType: type })
       goToPhase('phase3')
     },
     [goToPhase],
   )
 
+  const handleGoToHistory = useCallback(() => goToPhase('history'), [goToPhase])
+  const handleGoToComplete = useCallback(() => goToPhase('complete'), [goToPhase])
+  const handleGoToScenarioSelection = useCallback(() => goToPhase('scenario-selection'), [goToPhase])
+
+  // ── Derived scenario data ───────────────────────────────────────────────────
+
   const { activeScenario, verticalKey, verticalLabel } = useMemo(() => {
-    const vKey        = scenarioSelection?.vertical   ?? 'depression'
-    const cLevel      = scenarioSelection?.complexity ?? 'Intermediate'
+    const vKey   = scenarioSelection?.vertical   ?? 'depression'
+    const cLevel = scenarioSelection?.complexity ?? 'Intermediate'
     const complexityKey: 'intermediate' | 'advanced' =
       cLevel === 'Advanced' || cLevel === 'Master' ? 'advanced' : 'intermediate'
 
@@ -146,25 +157,26 @@ export default function App() {
     }
   }, [scenarioSelection])
 
-  const activeResponseType = selectedResponseType ?? 'partial' satisfies ResponseType
+  // Fallback to 'partial' if the user somehow reaches 'complete' without selecting
+  const activeResponseType: ResponseType = selectedResponseType ?? 'partial'
 
   const selectedResponseTier = useMemo(
     () => activeScenario.responses[RESPONSE_TIER_MAP[activeResponseType]],
     [activeScenario, activeResponseType],
   )
 
+  // ── Render ──────────────────────────────────────────────────────────────────
+
   return (
     <div className="min-h-screen bg-ground">
-
-
       {phase === 'landing' && (
-        <LandingSection onBegin={() => goToPhase('scenario-selection')} />
+        <LandingSection onBegin={handleGoToScenarioSelection} />
       )}
 
       {phase === 'scenario-selection' && (
         <ScenarioSelection
-          onReturnToHome={handleReset}
           onBegin={handleScenarioBegin}
+          onReturnToHome={handleReset}
         />
       )}
 
@@ -172,7 +184,7 @@ export default function App() {
         <Phase1Diagnostic
           scenario={activeScenario}
           instinctText={instinctText}
-          onInstinctChange={(text) => dispatch({ type: 'setInstinctText', text })}
+          onInstinctChange={(text) => dispatch({ type: 'SET_INSTINCT_TEXT', text })}
           onContinue={handlePhase1Continue}
           onReturnToHome={handleReset}
         />
@@ -191,7 +203,7 @@ export default function App() {
       {phase === 'phase3' && (
         <Phase3Reflection
           scenario={activeScenario}
-          onContinue={() => goToPhase('complete')}
+          onContinue={handleGoToComplete}
           onReturnToHome={handleReset}
         />
       )}
@@ -206,12 +218,14 @@ export default function App() {
           responseType={activeResponseType}
           selectedResponseTier={selectedResponseTier}
           onPlayAnother={handleReset}
-          onReviewHistory={() => goToPhase('history')}
+          onReviewHistory={handleGoToHistory}
           onReturnToHome={handleReset}
         />
       )}
 
-      {phase === 'history' && <PracticeHistory onReturn={handleReset} />}
+      {phase === 'history' && (
+        <PracticeHistory onReturn={handleReset} />
+      )}
     </div>
   )
 }

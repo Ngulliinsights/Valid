@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import ValidLogo from '../components/ValidLogo'
 import { fadeUp, fadeUpTransition } from '../lib/motion'
@@ -7,12 +7,15 @@ import type { PracticeEntry } from '../types/practice'
 import type { AnalysisResult } from '../lib/responseAnalysis'
 import { savePracticeEntry } from '../lib/practiceJournal'
 
-
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-type ResponseType = 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating'
+type ResponseType =
+  | 'invalidating-antagonising'
+  | 'invalidating-enabling'
+  | 'partial'
+  | 'validating'
 
 interface PracticeSessionCompleteProps {
   scenario: ScenarioData
@@ -45,7 +48,6 @@ const BADGE_CLASSES: Record<ResponseType, string> = {
   validating: 'bg-teal-950/40 text-teal-200',
 }
 
-// Both invalidating subtypes share the same red accent in the analysis block
 const ANALYSIS_STYLES: Record<ResponseType, { bg: string; borderLeft: string }> = {
   'invalidating-antagonising': {
     bg: 'rgba(196, 80, 80, 0.08)',
@@ -65,21 +67,42 @@ const ANALYSIS_STYLES: Record<ResponseType, { bg: string; borderLeft: string }> 
   },
 }
 
-// null = omit qualifier; string = shown in parentheses after the pattern label
+// null = high confidence, no qualifier shown
 const CONFIDENCE_QUALIFIERS: Record<string, string | null> = {
   high: null,
   medium: 'indicative read',
   low: 'preliminary read',
 }
 
+const CONTRAST_COPY: Record<ResponseType, { className: string; text: string }> = {
+  'invalidating-antagonising': {
+    className: 'text-drift/80',
+    text: 'Your instinct moved toward confrontation. The validating response stays in the emotional experience without touching the factual content — preventing defensiveness and keeping the therapeutic relationship intact.',
+  },
+  'invalidating-enabling': {
+    className: 'text-drift/80',
+    text: 'Your instinct agreed with the distorted perception. The validating response acknowledges the emotional experience while declining to endorse the belief — the deeper act of respect.',
+  },
+  partial: {
+    className: 'text-drift/80',
+    text: 'Your instinct acknowledged the feeling but pivoted too quickly to problem-solving. The validating response establishes safety and therapeutic presence before moving toward assessment.',
+  },
+  validating: {
+    className: 'text-teal-200',
+    text: 'Your instinctive response aligned with validation principles. You met the emotional experience, stayed present, and opened toward help.',
+  },
+}
+
+const MAX_DISPLAYED_KEYWORDS = 3
+
 // ---------------------------------------------------------------------------
-// Sub-components
+// InstinctAnalysisBlock
 // ---------------------------------------------------------------------------
 
 function InstinctAnalysisBlock({ analysis }: { analysis: AnalysisResult }) {
   const style = ANALYSIS_STYLES[analysis.primaryType]
   const qualifier = CONFIDENCE_QUALIFIERS[analysis.confidence] ?? null
-  const displayed = analysis.keywords.slice(0, 3)
+  const displayed = analysis.keywords.slice(0, MAX_DISPLAYED_KEYWORDS)
   const extra = analysis.keywords.length - displayed.length
 
   return (
@@ -111,32 +134,17 @@ function InstinctAnalysisBlock({ analysis }: { analysis: AnalysisResult }) {
   )
 }
 
-function ContrastText({ type }: { type: ResponseType }) {
-  const copy: Record<ResponseType, { className: string; text: string }> = {
-    'invalidating-antagonising': {
-      className: 'text-drift/80',
-      text: 'Your instinct moved toward confrontation. The validating response stays in the emotional experience without touching the factual content — preventing defensiveness and keeping the therapeutic relationship intact.',
-    },
-    'invalidating-enabling': {
-      className: 'text-drift/80',
-      text: 'Your instinct agreed with the distorted perception. The validating response acknowledges the emotional experience while declining to endorse the belief — the deeper act of respect.',
-    },
-    partial: {
-      className: 'text-drift/80',
-      text: 'Your instinct acknowledged the feeling but pivoted too quickly to problem-solving. The validating response establishes safety and therapeutic presence before moving toward assessment.',
-    },
-    validating: {
-      className: 'text-teal-200',
-      text: 'Your instinctive response aligned with validation principles. You met the emotional experience, stayed present, and opened toward help.',
-    },
-  }
+// ---------------------------------------------------------------------------
+// ContrastText
+// ---------------------------------------------------------------------------
 
-  const { className, text } = copy[type]
+function ContrastText({ type }: { type: ResponseType }) {
+  const { className, text } = CONTRAST_COPY[type]
   return <p className={`${className} leading-relaxed`}>{text}</p>
 }
 
 // ---------------------------------------------------------------------------
-// Component
+// PracticeSessionComplete
 // ---------------------------------------------------------------------------
 
 export default function PracticeSessionComplete({
@@ -153,10 +161,14 @@ export default function PracticeSessionComplete({
 }: PracticeSessionCompleteProps) {
   const [saved, setSaved] = useState(false)
 
-  const handleSaveToJournal = () => {
+  // Entry is built inside the handler — not during render — so Date.now() and
+  // Math.random() are evaluated at click time, which is the correct moment.
+  // The `saved` flag prevents any re-execution, keeping the id/timestamp stable.
+  const handleSaveToJournal = useCallback(() => {
+    const now = Date.now()
     const entry: PracticeEntry = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      timestamp: Date.now(),
+      id: `${now}-${Math.random().toString(36).slice(2, 9)}`,
+      timestamp: now,
       characterId,
       characterName,
       scenarioNumber: scenario.scenarioNumber,
@@ -171,19 +183,27 @@ export default function PracticeSessionComplete({
           }
         : undefined,
       responseType,
-      completedAt: Date.now(),
+      completedAt: now,
     }
-
     savePracticeEntry(entry)
     setSaved(true)
-  }
+  }, [
+    characterId,
+    characterName,
+    instinctAnalysis,
+    instinctiveResponse,
+    responseType,
+    scenario.category,
+    scenario.complexity,
+    scenario.scenarioNumber,
+  ])
 
   return (
     <section className="min-h-screen bg-ground relative overflow-hidden grain-overlay">
       {/* Top bar */}
-      <div className="relative z-[10] p-6 md:p-10">
+      <header className="relative z-10 p-6 md:p-10">
         <ValidLogo size="sm" color="parchment" onHomeClick={onReturnToHome} />
-      </div>
+      </header>
 
       {/* Body */}
       <div className="relative z-10 max-w-3xl mx-auto px-6 md:px-16 pb-20">
@@ -200,11 +220,15 @@ export default function PracticeSessionComplete({
               Response Analysis
             </h1>
             <p className="text-drift/70">
-              Scenario {scenario.scenarioNumber} · {scenario.category} · {scenario.complexity}
+              Scenario {scenario.scenarioNumber}
+              <span className="mx-2 text-drift/30" aria-hidden="true">·</span>
+              {scenario.category}
+              <span className="mx-2 text-drift/30" aria-hidden="true">·</span>
+              {scenario.complexity}
             </p>
           </div>
 
-          {/* Instinct analysis — only rendered when available */}
+          {/* Instinct analysis — conditional */}
           {instinctAnalysis && (
             <motion.div
               variants={fadeUp}
@@ -226,7 +250,7 @@ export default function PracticeSessionComplete({
               transition={fadeUpTransition(0.2)}
               className="space-y-3 bg-ground/85 border border-drift/35 p-6 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
             >
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
                 <span className="label-text text-drift/60">YOUR INSTINCTIVE RESPONSE</span>
                 <span
                   className={`label-text px-2 py-1 text-xs uppercase tracking-wide rounded-md ${BADGE_CLASSES[responseType]}`}
@@ -246,7 +270,9 @@ export default function PracticeSessionComplete({
               className="space-y-3 bg-tide/12 border border-tide/50 p-6 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.5)]"
             >
               <span className="label-text text-tide">VALIDATING RESPONSE</span>
-              <p className="text-parchment/90 leading-relaxed italic">{selectedResponseTier.text}</p>
+              <p className="text-parchment/90 leading-relaxed italic">
+                {selectedResponseTier.text}
+              </p>
               <div className="pt-3 border-t border-tide/20 space-y-2">
                 <p className="text-xs uppercase tracking-wide text-tide/70 font-medium">
                   {selectedResponseTier.mechanism}
@@ -272,8 +298,6 @@ export default function PracticeSessionComplete({
             <ContrastText type={responseType} />
           </motion.div>
 
-
-
           {/* Actions */}
           <motion.div
             variants={fadeUp}
@@ -287,7 +311,7 @@ export default function PracticeSessionComplete({
               disabled={saved}
               data-cursor-hover
               type="button"
-              className="flex-1 bg-tide text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] rounded-xl"
+              className="flex-1 bg-tide text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98] rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-tide focus-visible:outline-offset-2"
             >
               {saved ? '✓ Saved to Journal' : 'Save to Practice Journal'}
             </button>
@@ -296,7 +320,7 @@ export default function PracticeSessionComplete({
               onClick={onReviewHistory}
               data-cursor-hover
               type="button"
-              className="flex-1 border border-drift/40 text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:bg-drift/10 active:scale-[0.98] rounded-xl"
+              className="flex-1 border border-drift/40 text-parchment font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:bg-drift/10 active:scale-[0.98] rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-drift focus-visible:outline-offset-2"
             >
               View History
             </button>
@@ -305,7 +329,7 @@ export default function PracticeSessionComplete({
               onClick={onPlayAnother}
               data-cursor-hover
               type="button"
-              className="flex-1 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl"
+              className="flex-1 bg-ember text-ground font-dm font-medium text-sm uppercase tracking-[0.14em] px-6 py-3 transition-all duration-200 hover:brightness-110 active:scale-[0.98] rounded-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-ember focus-visible:outline-offset-2"
             >
               Practice Another
             </button>
