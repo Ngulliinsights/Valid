@@ -52,8 +52,8 @@ const ANALYSIS_STYLES: Record<ResponseType, { bg: string; borderLeft: string }> 
     borderLeft: '3px solid #C45050',
   },
   'invalidating-enabling': {
-    bg: 'rgba(196, 80, 80, 0.08)',
-    borderLeft: '3px solid #C45050',
+    bg: 'rgba(221, 107, 32, 0.08)',
+    borderLeft: '3px solid #DD6B20',
   },
   partial: {
     bg: 'rgba(196, 136, 42, 0.06)',
