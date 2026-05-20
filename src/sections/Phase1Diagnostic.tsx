@@ -229,7 +229,7 @@ export default function Phase1Diagnostic({
             initial="hidden"
             animate="visible"
             transition={fadeUpTransition(0.2)}
-            className="flex-1 flex flex-col items-center"
+            className="flex-1 flex flex-col items-center w-full"
             style={{ perspective: 1200 }}
           >
             {/* Mobile timer */}
