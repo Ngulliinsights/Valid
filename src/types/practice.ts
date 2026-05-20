@@ -25,8 +25,8 @@ export interface PracticeEntry {
   // Phase 2: Clinician's selected response (which tier they chose as model)
   responseType: 'invalidating-antagonising' | 'invalidating-enabling' | 'partial' | 'validating'
   
-  // Phase 3: Behavioral commitment
-  behavioralCommitment: string
+  // Phase 3: Behavioral commitment (Deprecated - handled by Phase 3 reflection)
+  behavioralCommitment?: string
   
   // Metadata
   completedAt: number
