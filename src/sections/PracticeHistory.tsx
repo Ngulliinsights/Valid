@@ -56,7 +56,9 @@ export default function PracticeHistory({ onReturn }: PracticeHistoryProps) {
           : 'Instinct Analysis: Not captured',
         `Phase 2 Selection: ${entry.responseType}`,
         entry.reflections
-          ? `Reflections: ${JSON.stringify(entry.reflections)}`
+          ? `Reflections:\n${Object.entries(entry.reflections)
+              .map(([k, v]) => `  - ${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`)
+              .join('\n')}`
           : 'Reflections: Not captured',
         '─'.repeat(51),
       ]),
