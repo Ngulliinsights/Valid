@@ -205,7 +205,7 @@ interface CompletionIndicatorProps {
 function CompletionIndicator({ filled, total }: CompletionIndicatorProps) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex gap-1.5" role="progressbar" aria-valuenow={String(filled)} aria-valuemax={String(total)}>
+      <div className="flex gap-1.5" role="progressbar" aria-valuenow={filled} aria-valuemax={total}>
         {Array.from({ length: total }).map((_, i) => (
           <motion.div
             key={i}
